@@ -19,6 +19,13 @@ class UserDatabase {
                 console.error('Error opening database:', err.message);
             } else {
                 console.log('Connected to the SQLite database.');
+
+                this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
+                    if (err) {
+                        console.error('Error enabling foreign keys:', err.message);
+                    }
+                });
+
                 this.db.run(`CREATE TABLE IF NOT EXISTS User (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     email TEXT UNIQUE NOT NULL,

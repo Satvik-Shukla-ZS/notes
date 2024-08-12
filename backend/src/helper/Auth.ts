@@ -19,7 +19,7 @@ interface payloadToken{
     jti: string
 }
 
-export const headerAuthVerify = async (req : Request) : Promise<boolean | payloadToken> =>{
+export const headerAuthVerify = async (req : Request) : Promise<false | payloadToken> =>{
     const headers = req.headers
     if(!headers.authorization) return false
     const bearer = headers.authorization.split(' ')[1]
