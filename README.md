@@ -11,4 +11,6 @@ This application is a note taking webapp.
 - If you see a issue in webapp , kindly open a issue with some reproducible steps.
 
 ## Contributors
+
 - Satvik Shukla
+- Satyam Trivedi
