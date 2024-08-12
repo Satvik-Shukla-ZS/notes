@@ -8,6 +8,10 @@ export default {
         status,
     }),
     BAD_REQUEST : (status:string) => ({
+        code : 400,
+        status,
+    }),
+    UNAUTHORISED : (status:string) => ({
         code : 401,
         status,
     }),
