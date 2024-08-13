@@ -15,13 +15,13 @@ class CollectionDatabase {
 
     static {
         this.db = new sqlite3.Database('database.db', async (err: Error | null) => {
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
             if (err) {
                 console.error('Error opening database:', err.message);
             } else {
                 console.log('[ COLLECTION ] : Connected to the SQLite database.');
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`CREATE TABLE IF NOT EXISTS Collection (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +37,7 @@ class CollectionDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`
                             CREATE TRIGGER IF NOT EXISTS check_parent_user_update
@@ -61,7 +61,7 @@ class CollectionDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`
                             CREATE TRIGGER IF NOT EXISTS check_parent_user_insert
@@ -86,7 +86,7 @@ class CollectionDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
                     if (err) {

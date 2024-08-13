@@ -18,14 +18,14 @@ class PageDatabase {
 
     static {
         this.db = new sqlite3.Database('database.db', async (err: Error | null) => {
-            await new Promise(resolve => setTimeout(resolve, 4000));
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             if (err) {
                 console.error('Error opening database:', err.message);
             } else {
                 console.log('[ PAGE ] : Connected to the SQLite database.');
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
                     if (err) {
@@ -33,7 +33,7 @@ class PageDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`CREATE TABLE IF NOT EXISTS Page (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,9 +50,9 @@ class PageDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`
                             CREATE TRIGGER IF NOT EXISTS check_parent_user_update_page
@@ -76,7 +76,7 @@ class PageDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
 
                 this.db.run(`
                             CREATE TRIGGER IF NOT EXISTS check_parent_user_insert_page
@@ -101,7 +101,7 @@ class PageDatabase {
                     }
                 });
 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
         });
     }
