@@ -20,8 +20,9 @@ class PageController {
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await Database.PagesDatabase.createPage(name,Number(collectionId),userObj.id).catch(()=>null)
-        if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
+        const result = await Database.PagesDatabase.createPage(name,Number(collectionId),userObj.id).catch((res : string | null)=>res)
+        if(!result) return res.json(responseHandler.CONFLICT("Page not created"))
+        if(typeof result === "string") return res.json(responseHandler.CONFLICT(result))
 
         return res.json(responseHandler.SUCCESS(result))
 

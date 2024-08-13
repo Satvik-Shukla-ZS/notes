@@ -10,6 +10,7 @@ interface Page {
 
 const ErrorType : Record<string, string> = {
     "SQLITE_CONSTRAINT: UNIQUE constraint failed: User.email" : "Email already exists",
+    "SQLITE_CONSTRAINT: Page collection does not belong to the same user" : "Page collection id invalid",
 }
 
 class PageDatabase {
@@ -17,7 +18,7 @@ class PageDatabase {
 
     static {
         this.db = new sqlite3.Database('database.db', async (err: Error | null) => {
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 4000));
 
             if (err) {
                 console.error('Error opening database:', err.message);
@@ -50,6 +51,57 @@ class PageDatabase {
                 });
 
                 await new Promise(resolve => setTimeout(resolve, 500));
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                this.db.run(`
+                            CREATE TRIGGER IF NOT EXISTS check_parent_user_update_page
+                            BEFORE UPDATE ON Page
+                            FOR EACH ROW
+                            BEGIN
+                                -- Ensure that if the parent is changed, it still belongs to the same user
+                                SELECT
+                                CASE
+                                    WHEN (NEW.collectionRef IS NOT NULL AND
+                                          (SELECT userRef FROM Collection WHERE id = NEW.collectionRef) != NEW.userRef) THEN
+                                        RAISE (ABORT, 'Page collection does not belong to the same user')
+                                END;
+                            END;
+                            `, (err:Error) => {
+
+                    if (err) {
+                        console.error('Error enabling foreign keys : [ COLLECTION ] : TRIGGER ', err.message);
+                    }else{
+                        console.log("Created trigger for Page Update")
+                    }
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                this.db.run(`
+                            CREATE TRIGGER IF NOT EXISTS check_parent_user_insert_page
+                            BEFORE INSERT ON Page
+                            FOR EACH ROW
+                            BEGIN
+                                -- Ensure that if a parent is assigned during insertion, it belongs to the same user
+                                SELECT
+                                CASE
+                                    WHEN (NEW.collectionRef IS NOT NULL AND
+                                          (SELECT userRef FROM Collection WHERE id = NEW.collectionRef) != NEW.userRef) THEN
+                                        RAISE (ABORT, 'Page collection does not belong to the same user')
+                                END;
+                            END;
+
+                            `, (err:Error) => {
+
+                    if (err) {
+                        console.error('Error enabling foreign keys : [ COLLECTION ] : TRIGGER ', err.message);
+                    }else{
+                        console.log("Created trigger for Page Insert")
+                    }
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         });
     }
@@ -71,7 +123,6 @@ class PageDatabase {
 
                     const page = await PageDatabase.findPageById(lastId,userId).catch(()=>null)
                     if(!page) return reject();
-
                     resolve(page);
                 }
             });

@@ -56,6 +56,33 @@ class CollectionDatabase {
 
                     if (err) {
                         console.error('Error enabling foreign keys : [ COLLECTION ] : TRIGGER ', err.message);
+                    }else{
+                        console.log("Created trigger for Collection Update")
+                    }
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                this.db.run(`
+                            CREATE TRIGGER IF NOT EXISTS check_parent_user_insert
+                            BEFORE INSERT ON Collection
+                            FOR EACH ROW
+                            BEGIN
+                                -- Ensure that if a parent is assigned during insertion, it belongs to the same user
+                                SELECT
+                                CASE
+                                    WHEN (NEW.parent IS NOT NULL AND
+                                          (SELECT userRef FROM Collection WHERE id = NEW.parent) != NEW.userRef) THEN
+                                        RAISE (ABORT, 'Parent collection does not belong to the same user')
+                                END;
+                            END;
+
+                            `, (err:Error) => {
+
+                    if (err) {
+                        console.error('Error enabling foreign keys : [ COLLECTION ] : TRIGGER ', err.message);
+                    }else{
+                        console.log("Created trigger for Collection Insert")
                     }
                 });
 
