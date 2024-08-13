@@ -18,7 +18,7 @@ class CollectionDatabase {
             if (err) {
                 console.error('Error opening database:', err.message);
             } else {
-                console.log('Connected to the SQLite database.');
+                console.log('[ COLLECTION ] : Connected to the SQLite database.');
 
                 this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
                     if (err) {
@@ -27,7 +27,7 @@ class CollectionDatabase {
                 });
 
                 this.db.run(`
-                            CREATE TRIGGER check_parent_user_update
+                            CREATE TRIGGER IF NOT EXISTS check_parent_user_update
                             BEFORE UPDATE ON Collection
                             FOR EACH ROW
                             BEGIN
@@ -71,14 +71,11 @@ class CollectionDatabase {
             this.db.run('INSERT INTO Collection (name,userRef,parent) VALUES (?, ?, ?)', [name,userId, parent ? Number(parent) : null], async function (err: Error | null) {
                 if (err) {
                     if(err.message in ErrorType){
-                        console.error('Error inserting data:', ErrorType[err.message]);
                         reject(ErrorType[err.message]);
                     }else{
-                        console.error('Error inserting data:', err.message);
                         reject();
                     }
                 } else {
-                    console.log('Data inserted successfully.');
                     // @ts-ignore
                     const lastId = this.lastID;
 
@@ -97,7 +94,44 @@ class CollectionDatabase {
         return new Promise<Collection | null>((resolve, reject) => {
             this.db.get('SELECT * FROM Collection WHERE id = ?', [collectionId], (err: Error | null, row: Collection | undefined) => {
                 if (err) {
-                    console.error('Error finding Collection :', ErrorType[err.message]);
+                    reject(null);
+                } else {
+                    resolve(row || null);
+                }
+            });
+        });
+    }
+
+    static async findCollectionByUser(userId : number): Promise<Collection | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<Collection | null>((resolve, reject) => {
+            this.db.get('SELECT * FROM Collection WHERE userRef = ?', [userId], (err: Error | null, row: Collection | undefined) => {
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(row || null);
+                }
+            });
+        });
+    }
+
+    static async findCollectionByUserAndRoot(userId : number,parent:number|null): Promise<Collection[] | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<Collection[] | null>((resolve, reject) => {
+            let query = 'SELECT * FROM Collection WHERE userRef = ? AND isDeleted = 0';
+            let params = [userId];
+
+            if (parent === null) {
+                query += ' AND parent IS NULL';
+            } else {
+                query += ' AND parent = ?';
+                params.push(parent);
+            }
+
+            this.db.all(query, params, (err: Error | null, row: Collection[] | undefined) => {
+                if (err) {
                     reject(null);
                 } else {
                     resolve(row || null);

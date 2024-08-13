@@ -4,6 +4,8 @@ import cors from "cors"
 import {headerAuthVerify} from "./helper/Auth";
 import responseHandler from "./Handler/responseHandler";
 import collectionRoutes from "./routes/collectionRoutes";
+import pageController from "./controller/pageController";
+import pageRoutes from "./routes/pageRoutes";
 
 const app: Application = express();
 
@@ -18,5 +20,6 @@ app.use("/auth",async (req,res,next)=>{
 
 app.use('/auth/user', userRoutes);
 app.use('/auth/collection', collectionRoutes);
+app.use('/auth/page', pageRoutes);
 
 export default app;

@@ -27,13 +27,11 @@ export const headerAuthVerify = async (req : Request) : Promise<false | payloadT
     try{
         const ticket = await client.verifyIdToken({
             idToken: bearer,
-            audience: "1099337779876-sfo832f3c95646m3u2lj8fvrmd6k6d2b.apps.googleusercontent.com",
         });
         const payload = ticket.getPayload();
         if(!payload) return false;
         return payload as payloadToken
     }catch (e){
-        console.error(e);
         return false
     }
 }

@@ -46,10 +46,10 @@ class UserDatabase {
             this.db.run('INSERT INTO User (email, name) VALUES (?, ?)', [email , name], function (err: Error | null) {
                 if (err) {
                     if(err.message in ErrorType){
-                        console.error('Error inserting data:', ErrorType[err.message]);
+                        console.error('Error inserting data:', err.message);
                         reject(ErrorType[err.message]);
                     }else{
-                        console.error('Error inserting data:', err.message);
+                        // console.error('Error inserting data:', err.message);
                         reject(false);
                     }
                 } else {
@@ -69,7 +69,6 @@ class UserDatabase {
                     console.error('Error finding user:', ErrorType[err.message]);
                     reject(null);
                 } else {
-                    console.log('User found:', row);
                     resolve(row || null);
                 }
             });
