@@ -18,11 +18,11 @@ class UserDatabase {
             if (err) {
                 console.error('Error opening database:', err.message);
             } else {
-                console.log('Connected to the SQLite database.');
+                console.log('[ USER ] : Connected to the SQLite database.');
 
                 this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
                     if (err) {
-                        console.error('Error enabling foreign keys:', err.message);
+                        console.error('Error enabling foreign keys : [ USER ] : ', err.message);
                     }
                 });
 
@@ -46,14 +46,11 @@ class UserDatabase {
             this.db.run('INSERT INTO User (email, name) VALUES (?, ?)', [email , name], function (err: Error | null) {
                 if (err) {
                     if(err.message in ErrorType){
-                        console.error('Error inserting data:', err.message);
                         reject(ErrorType[err.message]);
                     }else{
-                        // console.error('Error inserting data:', err.message);
                         reject(false);
                     }
                 } else {
-                    console.log('Data inserted successfully.');
                     resolve(true);
                 }
             });
@@ -66,7 +63,6 @@ class UserDatabase {
         return new Promise<User | null>((resolve, reject) => {
             this.db.get('SELECT * FROM User WHERE email = ?', [email], (err: Error | null, row: User | undefined) => {
                 if (err) {
-                    console.error('Error finding user:', ErrorType[err.message]);
                     reject(null);
                 } else {
                     resolve(row || null);

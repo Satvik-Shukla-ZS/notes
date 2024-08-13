@@ -14,17 +14,30 @@ class CollectionDatabase {
     private static db: any;
 
     static {
-        this.db = new sqlite3.Database('database.db', (err: Error | null) => {
+        this.db = new sqlite3.Database('database.db', async (err: Error | null) => {
+            await new Promise(resolve => setTimeout(resolve, 500));
             if (err) {
                 console.error('Error opening database:', err.message);
             } else {
                 console.log('[ COLLECTION ] : Connected to the SQLite database.');
 
-                this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                this.db.run(`CREATE TABLE IF NOT EXISTS Collection (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            name TEXT,
+                            isDeleted BOOLEAN DEFAULT FALSE,
+                            userRef INTEGER,
+                            parent INTEGER,
+                            FOREIGN KEY (userRef) REFERENCES User (id),
+                            FOREIGN KEY (parent) REFERENCES Collection (id)
+                        );`, (err: Error | null) => {
                     if (err) {
-                        console.error('Error enabling foreign keys:', err.message);
+                        console.error('Error creating table:', err.message);
                     }
                 });
+
+                await new Promise(resolve => setTimeout(resolve, 500));
 
                 this.db.run(`
                             CREATE TRIGGER IF NOT EXISTS check_parent_user_update
@@ -41,23 +54,16 @@ class CollectionDatabase {
                             END;
                             `, (err:Error) => {
 
-                            if (err) {
-                                console.error('Error enabling foreign keys:', err.message);
-                            }
-                        });
-
-
-                this.db.run(`CREATE TABLE IF NOT EXISTS Collection (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            name TEXT,
-                            isDeleted BOOLEAN DEFAULT FALSE,
-                            userRef INTEGER,
-                            parent INTEGER,
-                            FOREIGN KEY (userRef) REFERENCES User (id),
-                            FOREIGN KEY (parent) REFERENCES Collection (id)
-                        );`, (err: Error | null) => {
                     if (err) {
-                        console.error('Error creating table:', err.message);
+                        console.error('Error enabling foreign keys : [ COLLECTION ] : TRIGGER ', err.message);
+                    }
+                });
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                this.db.run('PRAGMA foreign_keys = ON;', (err:Error) => {
+                    if (err) {
+                        console.error('Error enabling foreign keys : [ COLLECTION ] : ', err.message);
                     }
                 });
             }
@@ -79,7 +85,7 @@ class CollectionDatabase {
                     // @ts-ignore
                     const lastId = this.lastID;
 
-                    const collection = await CollectionDatabase.findCollectionById(lastId).catch(()=>null)
+                    const collection = await CollectionDatabase.findCollectionById(lastId,userId).catch(()=>null)
                     if(!collection) return reject();
 
                     resolve(collection);
@@ -88,11 +94,11 @@ class CollectionDatabase {
         });
     }
 
-    static async findCollectionById(collectionId : number): Promise<Collection | null> {
+    static async findCollectionById(collectionId : number,userId:number): Promise<Collection | null> {
         if (!this.db) throw new Error('Database not initialized');
 
         return new Promise<Collection | null>((resolve, reject) => {
-            this.db.get('SELECT * FROM Collection WHERE id = ?', [collectionId], (err: Error | null, row: Collection | undefined) => {
+            this.db.get('SELECT * FROM Collection WHERE id = ? AND userRef = ?', [collectionId,userId], (err: Error | null, row: Collection | undefined) => {
                 if (err) {
                     reject(null);
                 } else {
