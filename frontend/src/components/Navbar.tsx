@@ -1,9 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import USER_API from '../utils/api/user'
+import { RES_USER_PROFILE } from '../utils/types/api/user'
+import { googleLogout } from '@react-oauth/google'
+import { useNavigate } from 'react-router-dom'
 
 const Navbar = () => {
+  const [profile, setProfile] = useState<RES_USER_PROFILE>()
+  const navigate = useNavigate()
+  useEffect(() => {
+    (async () => {
+      const response = await USER_API.GET_PROFILE()
+      setTimeout(() => {
+        setProfile(response);
+      }, 1000)
+    })()
+  }, [])
+
+  const handleLogout = () => {
+    document.cookie = `token=""`
+    navigate('/login')
+  }
+
   return (
     <>
-      <nav className='bg-slate-300 w-full px-2'>d</nav>
+      <nav className='w-full px-2 py-4 flex justify-between'>
+        <input type="text" className='w-40 px-4 rounded-full p-2 border-slate-400 border-2' placeholder='Search Notes' />
+        <div className='flex lg:gap-4 max-md:gap-4 md:gap-4 max-sm:gap-2'>
+          <div className='relative group'>
+            <img src={profile?.profile} className='rounded-full w-14 h-14 border-2 shadow-md shadow-red-400' alt="" onClick={handleLogout} />
+          </div>
+        </div>
+      </nav>
     </>
   )
 }

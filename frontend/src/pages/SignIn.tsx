@@ -1,14 +1,16 @@
 import React from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { GoogleLogin } from '@react-oauth/google'
+import { useNavigate } from 'react-router-dom'
 
 const SignIn = () => {
   const CLIENT_ID = process.env.REACT_APP_OAUTH_CLIENT_TOKEN
+  const navigate = useNavigate()
   console.log(CLIENT_ID)
 
   return (
     <>
-      <center className='flex justify-start text-3xl p-2'>NoteBlock </center>
+      <center className='flex justify-start text-3xl p-2'>NoteBloc</center>
       <section className='mt-36 m-20 border shadow shadow-slate-700 p-4'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-20'>
           <div className='h-full w-full'>
@@ -27,6 +29,7 @@ const SignIn = () => {
                     onSuccess={(credentialResponse) => {
                       console.log(credentialResponse)
                       document.cookie = `token=${credentialResponse.credential}`
+                      navigate("/");
                     }}
                     onError={() => {
                       console.log('Login Failed')
