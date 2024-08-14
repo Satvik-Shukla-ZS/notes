@@ -1,6 +1,7 @@
 import React, {FormEvent, useCallback, useContext, useState} from 'react';
 import {DataContext} from "../Context/DataProvider";
 import COLLECTION_API from "../api/collection";
+import PAGES_API from "../api/pages";
 
 const UseDirCreator = () => {
     const [isAdding,setIsAdding] = useState<"COLLECTION" | "PAGE" | "RENAME" | undefined>(undefined)
@@ -31,18 +32,16 @@ const UseDirCreator = () => {
                 }])
             }
         }else if (isAdding === "PAGE" &&parent !== null){
-            setData((prev)=>[
-                ...prev,
-                {
-                    "id": Date.now(),
-                    "name": name.toString(),
-                    "content": null,
-                    "isDeleted": 0,
-                    "userRef": 1,
-                    "collectionRef": parent,
-                    "type": "PAGE"
-                },
-            ])
+            const response = await PAGES_API.ADD({
+                name : name.toString(),
+                collectionId : parent
+            });
+            if(response.code === 200){
+                handleAddData([{
+                    ...response.data,
+                    type:"PAGE"
+                }])
+            }
         }
 
         setIsAdding(undefined);
@@ -81,7 +80,7 @@ const UseDirCreator = () => {
     const DataAdder = useCallback(({handleAdd}:{handleAdd:(e:FormEvent<HTMLFormElement>)=>void})=>{
        return <> {
             (isAdding === "COLLECTION" || isAdding === "PAGE") && (
-                <form onSubmit={handleAdd}>
+                <form onSubmit={handleAdd} className={`mt-2`}>
                     <input className={`border-[1px] border-slate-400 px-2 outline-0 rounded-md`} name={"name"} autoFocus/>
                 </form>
             )
@@ -93,7 +92,7 @@ const UseDirCreator = () => {
     const DataRename = useCallback(({handleRename}:{handleRename:(e:FormEvent<HTMLFormElement>)=>void})=>{
         return <> {
             isAdding === "RENAME" && (
-                <form onSubmit={handleRename}>
+                <form onSubmit={handleRename} className={`mt-2`}>
                     <input className={`border-[1px] border-slate-400 px-2 outline-0 rounded-md`} name={"name"} autoFocus/>
                 </form>
             )

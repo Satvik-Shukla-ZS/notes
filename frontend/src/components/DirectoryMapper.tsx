@@ -82,13 +82,13 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
         setIsChildVisible(prev => !prev)
     }
 
-    return <div className={`flex flex-col w-[200px] ${!("children" in single) ? "" : "pb-2"}`}>
+    return <div className={`flex flex-col w-[200px] ${!("children" in single) ? "" : "pb-1"} text-xs`}>
            <span
-               className={`flex relative gap-2 justify-between items-center hover:bg-slate-100 p-1 rounded-md ${single.type === "COLLECTION" ? "" : ""}`}>
+               className={`flex relative gap-2 items-center hover:bg-slate-100 p-1 rounded-md ${single.type === "COLLECTION" ? "" : ""}`}>
                 {
                     !(isAdding === "RENAME") ? (
                         <>
-                            <button className={`flex items-center gap-2 w-full`} onDoubleClick={(e) => {
+                            <button className={`flex w-fit items-center gap-2`} onDoubleClick={(e) => {
                                 const {x, y} = (e.target as HTMLButtonElement).getBoundingClientRect()
                                 if(single.type === "COLLECTION"){
                                     Options?.onClick(<OptionsCollectionJsx/>, {x, y}, single.id.toString())
@@ -105,7 +105,11 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
                                         : ""
                                 }
                                 <span className={`line-clamp-1`}
-                                      onClick={()=>{handleOpenDir(single.id)}}
+                                      onClick={()=>{
+                                          if(single.type === "COLLECTION"){
+                                              handleOpenDir(single.id)
+                                          }
+                                      }}
                                         >{single.name}</span>
                             </button>
                             <div className={`flex items-center justify-center gap-2`}>
@@ -145,7 +149,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
            </span>
         {
             "children" in single && isChildVisible ?
-                <span className={`pl-5 border-l-2 border-slate-100 flex flex-col gap-1`}>
+                <span className={`pl-5 border-l-2 border-slate-100 flex flex-col`}>
                          <DirectoryMapper data={single.children as ResultArr}/>
                         <DataAdder handleAdd={(e)=>{handleAddData(e,single.id)}} />
                     </span> : ""

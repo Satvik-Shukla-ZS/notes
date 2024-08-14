@@ -41,3 +41,19 @@ export interface REQ_ALL_COLLECTION_BY_PARENT_ID {
   parent: number | null
 }
 export type RES_ALL_COLLECTION_BY_PARENT_ID = Custom_API_RES<(CollectionType | PageType)[]>
+
+
+export interface REQ_ADD_PAGE {
+    name: string
+    collectionId: number
+}
+
+export type RES_ADD_PAGE =  Custom_API_RES<
+    {
+        id: number,
+        name: string,
+        isDeleted: 0 | 1,
+        content: string | null,
+        collectionRef: number
+    }
+>
