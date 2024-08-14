@@ -33,7 +33,7 @@ const Navbar = () => {
           <div className='flex flex-row gap-2 items-center justify-center'>
             <img src={profile?.profile} className='rounded-full w-14 h-14 border-2 ' alt="pfp"/>
             <h1>{profile?profile.name:""}</h1>
-            <RiLogoutCircleLine className='text-2xl cursor-pointer ' />
+            <RiLogoutCircleLine className='text-2xl cursor-pointer ' onClick={handleLogout}  />
           </div>
         </div>
       </nav>
