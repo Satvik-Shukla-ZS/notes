@@ -1,3 +1,4 @@
+import { ResultArr } from '../helper/DirFormatter'
 import {
   REQ_ADD_COLLECTION,
   REQ_ALL_COLLECTION_BY_PARENT_ID,
@@ -8,9 +9,10 @@ import {
   RES_COLLECTION_BY_ID,
   RES_COLLECTION_BY_PARENT_ID
 } from '../types/api/collection_Types'
+import { Custom_API_RES } from '../types/api/common'
 import axiosInstance from './axiosInterface'
 
-const ADD = async (data: REQ_ADD_COLLECTION): Promise<RES_ADD_COLLECTION> => {
+const ADD = async (data: REQ_ADD_COLLECTION): Promise<Custom_API_RES<RES_ADD_COLLECTION>> => {
   try {
     return await axiosInstance()
       .post('/auth/collection/add', data)
@@ -20,7 +22,7 @@ const ADD = async (data: REQ_ADD_COLLECTION): Promise<RES_ADD_COLLECTION> => {
   }
 }
 
-const Get_By_ID = async (data: REQ_COLLECTION_BY_ID): Promise<RES_COLLECTION_BY_ID> => {
+const Get_By_ID = async (data: REQ_COLLECTION_BY_ID): Promise<Custom_API_RES<RES_COLLECTION_BY_ID>> => {
   try {
     return await axiosInstance()
       .post('/auth/collection/getById', data)
@@ -30,7 +32,7 @@ const Get_By_ID = async (data: REQ_COLLECTION_BY_ID): Promise<RES_COLLECTION_BY_
   }
 }
 
-const Get_By_Parent_ID = async (data: REQ_COLLECTION_BY_PARENT_ID): Promise<RES_COLLECTION_BY_PARENT_ID> => {
+const Get_By_Parent_ID = async (data: REQ_COLLECTION_BY_PARENT_ID): Promise<Custom_API_RES<RES_COLLECTION_BY_PARENT_ID>> => {
   try {
     return await axiosInstance()
       .post('/auth/collection/getByParentId', data)
@@ -40,7 +42,7 @@ const Get_By_Parent_ID = async (data: REQ_COLLECTION_BY_PARENT_ID): Promise<RES_
   }
 }
 
-const Get_All_By_Parent_ID = async (data: REQ_ALL_COLLECTION_BY_PARENT_ID): Promise<RES_ALL_COLLECTION_BY_PARENT_ID> => {
+const Get_All_By_Parent_ID = async (data: REQ_ALL_COLLECTION_BY_PARENT_ID): Promise<Custom_API_RES<ResultArr>> => {
   try {
     return await axiosInstance()
       .post('/auth/collection/getAllByParentId', data)
