@@ -5,8 +5,11 @@ export interface REQ_ADD_COLLECTION {
   parent: number | null
 }
 export interface RES_ADD_COLLECTION {
+  id: number
   name: string
-  parent: number
+  isDeleted: 0 | 1
+  userRef: number
+  parent: null | number
 }
 
 export interface REQ_COLLECTION_BY_ID {
