@@ -135,6 +135,21 @@ class CollectionDatabase {
         });
     }
 
+    static async renameById(collectionId : number,userId:number,name:string): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('UPDATE Collection SET name = ? WHERE id = ? AND userRef = ?', [name,collectionId,userId], (err: Error | null, row: Collection | undefined) => {
+                console.log(name , collectionId , userId)
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
     static async findCollectionByUser(userId : number): Promise<Collection | null> {
         if (!this.db) throw new Error('Database not initialized');
 
