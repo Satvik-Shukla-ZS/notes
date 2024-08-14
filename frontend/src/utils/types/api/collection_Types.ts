@@ -81,3 +81,10 @@ export interface REQ_SAVE_PAGE {
 
 
 export type RES_SAVE_PAGE =  Custom_API_RES<string>
+
+
+export interface REQ_GET_PAGE {
+    id: number
+}
+
+export type RES_GET_PAGE =  Custom_API_RES<PageType>
