@@ -150,7 +150,7 @@ class PageDatabase {
         if (!this.db) throw new Error('Database not initialized');
 
         return new Promise(async (resolve, reject) => {
-            this.db.run('UPDATE Page SET content = ? WHERE id = ? AND userRed = ?', [content,pageId,userId], async function (err: Error | null) {
+            this.db.run('UPDATE Page SET content = ? WHERE id = ? AND userRef = ?', [content,pageId,userId], async function (err: Error | null) {
                 if (err) {
                     console.log(err)
                     if(err.message in ErrorType){
