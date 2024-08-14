@@ -4,9 +4,15 @@ import Navbar from './Navbar'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { getCookieByName } from '../utils/cookie'
 import USER_API from '../utils/api/user'
+import data from "./data";
+import DirectoryMapper from "./DirectoryMapper";
+import Directory, {dataType, ResultArr} from "../utils/helper/DirFormatter";
 
 const Layout = () => {
   const navigate = useNavigate()
+
+  const dataArr = (new Directory(data as dataType)).createObject()
+
   useEffect(() => {
     if (!getCookieByName('token')) {
       navigate('/login')
@@ -29,6 +35,8 @@ const Layout = () => {
         <div className='flex flex-col gap-2 w-full'>
           <Navbar />
           <Outlet />
+          map
+          <DirectoryMapper data={dataArr as ResultArr} />
         </div>
       </div>
     </>
