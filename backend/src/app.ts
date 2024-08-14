@@ -4,12 +4,11 @@ import cors from "cors"
 import {headerAuthVerify} from "./helper/Auth";
 import responseHandler from "./Handler/responseHandler";
 import collectionRoutes from "./routes/collectionRoutes";
-import pageController from "./controller/pageController";
 import pageRoutes from "./routes/pageRoutes";
 
 const app: Application = express();
 
-app.use(cors({}));
+app.use(cors());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 

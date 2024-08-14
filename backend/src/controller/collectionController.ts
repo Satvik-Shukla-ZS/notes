@@ -5,6 +5,7 @@ import CollectionDatabase from "../Database/collectionDatabase";
 import responseHandler from "../Handler/responseHandler";
 import UserDatabase from "../Database/userDatabase";
 import PageDatabase from "../Database/pageDatabase";
+import Database from "../Database";
 
 class CollectionController {
     async addCollection (req: Request, res: Response , next: NextFunction){
@@ -15,12 +16,11 @@ class CollectionController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { name , parent} = request.body
-        const db = CollectionDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.addCollection(name,userObj.id,parent).catch(()=>null)
+        const result = await Database.CollectionDatabase.addCollection(name,userObj.id,parent).catch(()=>null)
         if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
 
         return res.json(responseHandler.SUCCESS(result))
@@ -35,13 +35,12 @@ class CollectionController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { id} = request.body
-        const db = CollectionDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.findCollectionById(Number(id)).catch(()=>null)
-        if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
+        const result = await Database.CollectionDatabase.findCollectionById(Number(id),userObj.id).catch(()=>null)
+        if(!result) return res.json(responseHandler.CONFLICT("No collection found"))
 
         return res.json(responseHandler.SUCCESS(result))
 
@@ -55,12 +54,11 @@ class CollectionController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { parent} = req.body
-        const db = CollectionDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
+        const result = await Database.CollectionDatabase.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
         if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
         return res.json(responseHandler.SUCCESS(result))
     }
@@ -73,20 +71,19 @@ class CollectionController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { parent} = req.body
-        const db = CollectionDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
         const ans = []
-        const resultColl = await db.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
-        if(resultColl) ans.push(resultColl.map((single)=>({
+        const resultColl = await Database.CollectionDatabase.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
+        if(resultColl) ans.push(...resultColl.map((single)=>({
             ...single,
             type : "COLLECTION"
         })))
 
-        const resultPage = await PageDatabase.findByCollectionId(Number(parent)).catch(()=>null)
-        if(resultPage) ans.push(resultPage.map((single)=>({
+        const resultPage = await PageDatabase.findByCollectionId(Number(parent),userObj.id).catch(()=>null)
+        if(resultPage) ans.push(...resultPage.map((single)=>({
             ...single,
             type : "PAGE"
         })))

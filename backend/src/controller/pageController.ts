@@ -5,6 +5,7 @@ import CollectionDatabase from "../Database/collectionDatabase";
 import responseHandler from "../Handler/responseHandler";
 import UserDatabase from "../Database/userDatabase";
 import pageDatabase from "../Database/pageDatabase";
+import Database from "../Database";
 
 class PageController {
     async addPage (req: Request, res: Response , next: NextFunction){
@@ -15,13 +16,13 @@ class PageController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { name , collectionId} = request.body
-        const db = pageDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.createPage(name,Number(collectionId)).catch(()=>null)
-        if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
+        const result = await Database.PagesDatabase.createPage(name,Number(collectionId),userObj.id).catch((res : string | null)=>res)
+        if(!result) return res.json(responseHandler.CONFLICT("Page not created"))
+        if(typeof result === "string") return res.json(responseHandler.CONFLICT(result))
 
         return res.json(responseHandler.SUCCESS(result))
 
@@ -35,12 +36,11 @@ class PageController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { id , content} = request.body
-        const db = pageDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.savePage(Number(id),content).catch(()=>null)
+        const result = await Database.PagesDatabase.savePage(Number(id),content,userObj.id).catch(()=>null)
         if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
 
         return res.json(responseHandler.SUCCESS("Page saved"))
@@ -55,12 +55,11 @@ class PageController {
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
         const { parent} = req.body
-        const db = CollectionDatabase
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await db.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
+        const result = await Database.CollectionDatabase.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
         if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
         return res.json(responseHandler.SUCCESS(result))
     }
