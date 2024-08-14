@@ -1,10 +1,11 @@
 import React from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { GoogleLogin } from '@react-oauth/google'
+import {useNavigate} from "react-router-dom";
 
 const SignIn = () => {
   const CLIENT_ID = process.env.REACT_APP_OAUTH_CLIENT_TOKEN
-  console.log(CLIENT_ID)
+  const navigate = useNavigate()
 
   return (
     <>
@@ -25,8 +26,8 @@ const SignIn = () => {
                 <GoogleOAuthProvider clientId={CLIENT_ID ?? ''}>
                   <GoogleLogin
                     onSuccess={(credentialResponse) => {
-                      console.log(credentialResponse)
                       document.cookie = `token=${credentialResponse.credential}`
+                      navigate("/")
                     }}
                     onError={() => {
                       console.log('Login Failed')

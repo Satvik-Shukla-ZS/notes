@@ -1,7 +1,8 @@
 import { RES_USER_PROFILE } from '../types/api/user'
 import axiosInstance from './axiosInterface'
+import {Custom_API_RES} from "../types/api/common";
 
-const GET_PROFILE = async (): Promise<RES_USER_PROFILE> => {
+const GET_PROFILE = async (): Promise<Custom_API_RES<RES_USER_PROFILE>> => {
   try {
     return await axiosInstance()
       .get('/auth/user/profile')

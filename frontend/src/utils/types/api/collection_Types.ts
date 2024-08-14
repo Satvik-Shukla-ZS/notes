@@ -1,13 +1,19 @@
 import { Custom_API_RES } from './common'
+import {CollectionType, PageType} from "../../helper/DirFormatter";
 
 export interface REQ_ADD_COLLECTION {
   name: string
   parent: number | null
 }
-export interface RES_ADD_COLLECTION {
-  name: string
-  parent: number
-}
+export type RES_ADD_COLLECTION =  Custom_API_RES<
+    {
+      id: number,
+      name: string,
+      isDeleted: 0 | 1,
+      userRef: number,
+      parent: number | null
+    }
+>
 
 export interface REQ_COLLECTION_BY_ID {
   id: number | null
@@ -34,10 +40,4 @@ export type RES_COLLECTION_BY_PARENT_ID = Custom_API_RES<{
 export interface REQ_ALL_COLLECTION_BY_PARENT_ID {
   parent: number | null
 }
-export type RES_ALL_COLLECTION_BY_PARENT_ID = Custom_API_RES<{
-  id: number
-  name: string
-  isDeleted: 0 | 1
-  userRef: number
-  parent: null | number
-}>
+export type RES_ALL_COLLECTION_BY_PARENT_ID = Custom_API_RES<(CollectionType | PageType)[]>
