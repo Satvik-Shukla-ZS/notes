@@ -18,3 +18,7 @@ body{
     opacity: 0.4;
   }
 }
+
+.area:focus {
+  outline: none;
+}
