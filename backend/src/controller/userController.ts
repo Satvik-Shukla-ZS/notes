@@ -1,7 +1,6 @@
 import {NextFunction , Request , Response} from "express";
 import {headerAuthVerify} from "../helper/Auth";
 import responseHandler from "../Handler/responseHandler";
-import UserDatabase from "../Database/userDatabase";
 import Database from "../Database";
 
 class UserController {
@@ -15,12 +14,12 @@ class UserController {
 
         if(!response || typeof response === "string") return res.json(responseHandler.NOT_FOUND_ERR("Not Found"))
 
-        return res.json({
+        return res.json(responseHandler.SUCCESS({
             email: data.email,
             profile : data.picture,
             name : data.name,
             id : response.id
-        });
+        }));
     }
 }
 
