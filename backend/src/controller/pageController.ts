@@ -47,21 +47,23 @@ class PageController {
 
     }
 
-    async getByParent (req: Request, res: Response , next: NextFunction){
-        const [isBodyValid, request] = reqBodyValidator(req,["parent"])
+    async rename (req: Request, res: Response , next: NextFunction){
+        const [isBodyValid, request] = reqBodyValidator(req,["id","name"])
         if(!isBodyValid) return res.json(request)
 
         const user = await headerAuthVerify(req)
         if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
 
-        const { parent} = req.body
+        const { id , name} = request.body
 
         const userObj = await UserDatabase.findUser(user.email);
         if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
 
-        const result = await Database.CollectionDatabase.findCollectionByUserAndRoot(userObj.id,parent ? Number(parent) : null).catch(()=>null)
-        if(!result) return res.json(responseHandler.CONFLICT("Collection not created"))
-        return res.json(responseHandler.SUCCESS(result))
+        const result = await Database.PagesDatabase.renameById(Number(id),userObj.id,name).catch(()=>null)
+        if(!result) return res.json(responseHandler.CONFLICT("No collection found"))
+
+        return res.json(responseHandler.SUCCESS("Renamed page"))
+
     }
 }
 
