@@ -1,3 +1,5 @@
+import {Collection} from "./collectionDatabase";
+
 const sqlite3 = require('sqlite3').verbose();
 
 interface Page {
@@ -124,6 +126,21 @@ class PageDatabase {
                     const page = await PageDatabase.findPageById(lastId,userId).catch(()=>null)
                     if(!page) return reject();
                     resolve(page);
+                }
+            });
+        });
+    }
+
+    static async renameById(pageId : number,userId:number,name:string): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('UPDATE Page SET name = ? WHERE id = ? AND userRef = ?', [name,pageId,userId], (err: Error | null, row: Collection | undefined) => {
+                console.log(name , pageId , userId)
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
                 }
             });
         });
