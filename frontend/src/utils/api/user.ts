@@ -7,7 +7,7 @@ const GET_PROFILE = async (): Promise<RES_USER_PROFILE> => {
       .get('/auth/user/profile')
       .then((res) => res.data)
   } catch (error) {
-    throw new Error(`Error fetching popular movies: ${error}`)
+    throw new Error(`Error fetching the user: ${error}`)
   }
 }
 
