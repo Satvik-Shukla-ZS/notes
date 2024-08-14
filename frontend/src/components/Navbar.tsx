@@ -3,6 +3,7 @@ import USER_API from '../utils/api/user'
 import { RES_USER_PROFILE } from '../utils/types/api/user'
 import { googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
+import data from './data';
 
 const Navbar = () => {
   const [profile, setProfile] = useState<RES_USER_PROFILE>()
@@ -11,7 +12,8 @@ const Navbar = () => {
     (async () => {
       const response = await USER_API.GET_PROFILE()
       setTimeout(() => {
-        setProfile(response);
+        console.log(response.data)
+        setProfile(response.data);
       }, 1000)
     })()
   }, [])
@@ -27,7 +29,8 @@ const Navbar = () => {
         <input type="text" className='w-40 px-4 rounded-full p-2 border-slate-400 border-2' placeholder='Search Notes' />
         <div className='flex lg:gap-4 max-md:gap-4 md:gap-4 max-sm:gap-2'>
           <div className='relative group'>
-            <img src={profile?.profile} className='rounded-full w-14 h-14 border-2 shadow-md shadow-red-400' alt="" onClick={handleLogout} />
+            <img src={profile?.profile} className='rounded-full w-14 h-14 border-2 shadow-md shadow-red-400' alt="pfp" onClick={handleLogout} />
+            <h1>{profile?.name}</h1>
           </div>
         </div>
       </nav>
