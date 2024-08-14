@@ -51,7 +51,7 @@ const UseDirCreator = () => {
         setIsAdding(type)
     }
 
-    const onRename =(e:FormEvent<HTMLFormElement> , id : number , type : "COLLECTION" | "PAGE" ) => {
+    const onRename = async (e:FormEvent<HTMLFormElement> , id : number , type : "COLLECTION" | "PAGE" ) => {
         e.preventDefault()
 
         const form = e.target as HTMLFormElement;
@@ -63,6 +63,31 @@ const UseDirCreator = () => {
             return alert("Name required")
         }
 
+        let isSuccess = false;
+
+        console.log(isAdding , name.toString() , id , type)
+
+        if(type === "COLLECTION"){
+            const response = await COLLECTION_API.RENAME({
+                name : name.toString(),
+                id : id
+            });
+            if(response.code === 200){
+                isSuccess = true
+            }
+        }else if (type === "PAGE" &&parent !== null){
+            const response = await PAGES_API.RENAME({
+                name : name.toString(),
+                id : id
+            });
+            if(response.code === 200){
+                isSuccess = true
+            }
+        }
+
+        console.log("done")
+
+        if(isSuccess)
         setData(prevState => prevState.map((data)=>{
             if(data.id === id && data.type === type){
                 return {

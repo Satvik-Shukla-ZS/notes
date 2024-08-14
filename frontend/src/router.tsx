@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import SignIn from './pages/SignIn'
 import DataProvider from "./utils/Context/DataProvider";
 import OptionsProvider from "./utils/Context/OptionsProvider";
+import PageViewer from "./pages/PageViewer";
 
 const CustomRouter = () => {
   return (
@@ -13,7 +14,7 @@ const CustomRouter = () => {
               <Routes>
                   <Route path='/login' element={<SignIn />} />
                   <Route path='/' Component={Layout}>
-                      <Route path='user' element={<>skajdsal</>} />
+                      <Route path=':collId/:pageId/' element={<PageViewer />} />
                   </Route>
               </Routes>
           </OptionsProvider>

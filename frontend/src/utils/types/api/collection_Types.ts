@@ -57,3 +57,27 @@ export type RES_ADD_PAGE =  Custom_API_RES<
         collectionRef: number
     }
 >
+
+export interface REQ_RENAME_PAGE {
+    name: string
+    id: number
+}
+
+
+export type RES_RENAME_PAGE =  Custom_API_RES<string>
+
+export interface REQ_RENAME_COLLECTION {
+    name: string
+    id: number
+}
+
+
+export type RES_RENAME_COLLECTION =  Custom_API_RES<string>
+
+export interface REQ_SAVE_PAGE {
+    content: string
+    id: number
+}
+
+
+export type RES_SAVE_PAGE =  Custom_API_RES<string>

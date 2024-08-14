@@ -2,11 +2,11 @@ import {
   REQ_ADD_COLLECTION,
   REQ_ALL_COLLECTION_BY_PARENT_ID,
   REQ_COLLECTION_BY_ID,
-  REQ_COLLECTION_BY_PARENT_ID,
+  REQ_COLLECTION_BY_PARENT_ID, REQ_RENAME_PAGE,
   RES_ADD_COLLECTION,
   RES_ALL_COLLECTION_BY_PARENT_ID,
   RES_COLLECTION_BY_ID,
-  RES_COLLECTION_BY_PARENT_ID
+  RES_COLLECTION_BY_PARENT_ID, RES_RENAME_PAGE
 } from '../types/api/collection_Types'
 import axiosInstance from './axiosInterface'
 
@@ -50,10 +50,21 @@ const Get_All_By_Parent_ID = async (data: REQ_ALL_COLLECTION_BY_PARENT_ID): Prom
   }
 }
 
+const RENAME = async (data: REQ_RENAME_PAGE): Promise<RES_RENAME_PAGE> => {
+  try {
+    return await axiosInstance()
+        .post('/auth/collection/rename', data)
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error renaming the page: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
   Get_By_Parent_ID,
-  Get_All_By_Parent_ID
+  Get_All_By_Parent_ID,
+  RENAME
 }
 export default COLLECTION_API

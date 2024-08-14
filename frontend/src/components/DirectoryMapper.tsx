@@ -4,6 +4,7 @@ import useDirCreator from "../utils/hooks/useDirCreator";
 import {OptionsContext} from "../utils/Context/OptionsProvider";
 import COLLECTION_API from "../utils/api/collection";
 import {DataContext} from "../utils/Context/DataProvider";
+import {useNavigate} from "react-router-dom";
 
 const DirectoryMapper = ({data}: { data : ResultArr }) => {
     return<>
@@ -21,6 +22,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
     const Options = useContext(OptionsContext)
     const { handleAddData : setCollectionData} = useContext(DataContext)
     const [isFetchingData, setIsFetchingData] = useState(false)
+    const navigate = useNavigate();
 
     if(!Options)
         return <></>
@@ -108,6 +110,8 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
                                       onClick={()=>{
                                           if(single.type === "COLLECTION"){
                                               handleOpenDir(single.id)
+                                          }else {
+                                              navigate(`${single.collectionRef}/${single.id}`);
                                           }
                                       }}
                                         >{single.name}</span>
