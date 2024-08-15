@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
-import DirectoryMapper from './DirectoryMapper'
+import DirectoryMap from './DirectoryMapper'
 import Directory, { dataType, ResultArr } from '../utils/helper/DirFormatter'
 import { RiFolderAddLine } from 'react-icons/ri'
 import COLLECTION_API from '../utils/api/collection'
@@ -34,12 +34,12 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className='sidebar h-screen bg-slate-400 w-1/6'>
+      <div className='sidebar h-screen bg-slate-400 w-1/6 p-2'>
         <inputContext.Provider value={takeinputColl}>
           <div className='flex justify-center py-2 text-3xl'>
             <RiFolderAddLine onClick={handleAddCollection} />
           </div>
-          <DirectoryMapper data={dataArr as ResultArr} takeinputColl={takeinputColl} setinputColl={setinputColl} />
+          <DirectoryMap />
           {takeinputColl && <input ref={inputRef} onKeyDown={handleKeyDown(null)} className='p-2 m-2' />}
         </inputContext.Provider>
       </div>
