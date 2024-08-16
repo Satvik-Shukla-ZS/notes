@@ -23,7 +23,9 @@ const Sidebar = () => {
   }
 
   const handleKeyDown = (parent: number | null) => (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && inputRef.current && inputRef.current.value.trim() !== '') {
+    if (inputRef.current && e.key === 'Enter' && inputRef.current.value === '') {
+      setinputColl(false)
+    } else if (e.key === 'Enter' && inputRef.current && inputRef.current.value.trim() !== '') {
       console.log(inputRef.current.value)
       setinputColl(false)
       COLLECTION_API.ADD({ name: inputRef.current.value, parent }).then((res) => {
@@ -43,7 +45,14 @@ const Sidebar = () => {
             />
           </div>
           <DirectoryMap />
-          {takeinputColl && <input ref={inputRef} onKeyDown={handleKeyDown(null)} className='p-2 m-2' />}
+          {takeinputColl && (
+            <input
+              ref={inputRef}
+              onKeyDown={handleKeyDown(null)}
+              placeholder='Enter the name of Collection'
+              className='p-2 rounded-md w-full bg-slate-300 focus-within:'
+            />
+          )}
         </inputContext.Provider>
       </div>
     </>

@@ -45,7 +45,7 @@ const MarkdownEditor: React.FC = () => {
         }}
         preview={isReadOnly ? 'preview' : 'edit'}
         hideToolbar={isReadOnly}
-        height={isReadOnly ? 650 : 300}
+        height={isReadOnly ? 650 : 650}
       />
     </div>
   )
