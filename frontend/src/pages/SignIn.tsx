@@ -35,7 +35,7 @@ const SignIn = () => {
               </div>
             </div>
           </div>
-          <div className='h-full'>
+          <div className='h-full shadow shadow-lg shadow-slate-900'>
             <img className='mx-auto h-full w-full rounded-md object-cover' src={gif} alt='' />
           </div>
         </div>
