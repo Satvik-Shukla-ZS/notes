@@ -5,14 +5,18 @@ import { FaFolder, FaFolderOpen } from 'react-icons/fa'
 import { FaNoteSticky } from 'react-icons/fa6'
 import { ImMenu, ImCross } from 'react-icons/im'
 import COLLECTION_API from '../utils/api/collection'
+import PAGE_API from '../utils/api/page'
 
 const DirectoryMap: React.FC = () => {
     const [data, setData] = useState<ResultArr>([])
     const [structuredData, setStructuredData] = useState<ResultArr>([])
     const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
+    const [rename, setRename] = useState<Record<number, boolean>>({})
+    const [type , setType] = useState<string>("")
     const [visibleChildren, setVisibleChildren] = useState<Set<number>>(new Set())
     const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({})
     const input = useRef<Record<number, HTMLInputElement | null>>({})
+    const renameRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
@@ -47,7 +51,7 @@ const DirectoryMap: React.FC = () => {
         }))
     }, [menuVisibility])
 
-    const toggleInputVisibility = useCallback((collectionId: number) => {
+    const toggleInputVisibility = useCallback((collectionId: number, type: string) => {
         setInputVisible((prev) => ({
             ...prev,
             [collectionId]: !prev[collectionId]
@@ -56,7 +60,15 @@ const DirectoryMap: React.FC = () => {
             ...prev,
             [collectionId]: !prev[collectionId]
         }))
+        setType(type)
     }, [menuVisibility])
+
+    const toggleRenameVisibility = useCallback((collectionId: number) => {
+        setRename((prev) => ({
+            ...prev,
+            [collectionId]: !prev[collectionId]
+        }))
+    }, []);
 
     const callApi = async (collectionId: number) => {
         try {
@@ -90,7 +102,7 @@ const DirectoryMap: React.FC = () => {
         (parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter' && input.current[parentId]) {
                 const inputValue = input.current[parentId]?.value.trim()
-                if (inputValue) {
+                if (inputValue && type === 'COLLECTION') {
                     COLLECTION_API.ADD({ name: inputValue, parent: parentId })
                         .then((res) => {
                             const newItem: CollectionType = {
@@ -106,20 +118,59 @@ const DirectoryMap: React.FC = () => {
                         ...prev,
                         [parentId]: false
                     }))
+                } else if (inputValue && type === 'PAGE') {
+                    PAGE_API.ADD_PAGE({ name: inputValue, collectionId: parentId })
+                        .then((res) => {
+                        })
+                        .catch((error) => {
+                            console.error('Failed to add item:', error)
+                        })
+                    setInputVisible((prev) => ({
+                        ...prev,
+                        [parentId]: false
+                    }))
                 }
             }
         },
         []
     )
+
+
     const handleDelteCollection = (collectionId: number) => {
-        
         COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: collectionId }).then((res) => {
             console.log(res)
-            setData((prevData) => prevData.filter((item) => item.id !== collectionId))
+            setData((prev) => prev.filter((single) => single.id !== collectionId))
         }).catch((error) => {
             console.error('Failed to delete item:', error)
         })
     }
+
+    const handleRename = (e: React.KeyboardEvent<HTMLInputElement>, collectionId: number) => {
+        if (e.key === 'Enter' && renameRef.current) {
+            const inputValue = renameRef.current.value.trim()
+            if (inputValue) {
+                COLLECTION_API.RENAME_COLLECTION({ name: inputValue, id: collectionId })
+                    .then((res) => {
+                        if (res.code === 200) {
+                            setData((prev) => prev.map((single) => {
+                                if (single.id === collectionId && single.type === 'COLLECTION') {
+                                    return { ...single, name: inputValue }
+                                }
+                                return single
+                            }))
+
+                            toggleRenameVisibility(collectionId);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Failed to rename item:', error)
+                    })
+            }
+        }
+    }
+    useEffect(() => {
+        console.log(rename)
+    }, [rename])
 
     const renderItem = useCallback(
         (item: CollectionType | PageType) => {
@@ -127,6 +178,7 @@ const DirectoryMap: React.FC = () => {
                 const isChildrenVisible = visibleChildren.has(item.id)
                 const isMenuVisible = menuVisibility[item.id] || false
                 const isInputVisible = inputVisible[item.id] || false
+                const isRenameVisible = rename[item.id] || false
 
                 return (
                     <div
@@ -136,48 +188,55 @@ const DirectoryMap: React.FC = () => {
                             callApi(item.id)
                         }}
                     >
-                        <div
-                            className='flex flex-row justify-between items-center'
-                            style={{ fontWeight: 'bold', cursor: 'pointer' }}
-                            onClick={() => {
-                                toggleChildrenVisibility(item.id)
-                                {
-                                    isMenuVisible && toggleMenuVisibility(item.id)
-                                }
-                                {
-                                    isInputVisible && toggleInputVisibility(item.id)
-                                }
-                            }}
-                        >
-                            <div className='flex gap-2 items-center'>
-                                {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
-                                {item.name}
-                            </div>
+                        {isRenameVisible ? <input type='text' ref={renameRef} className='mb-2 mt-2' onKeyDown={(e) => { handleRename(e, item.id) }} /> :
                             <div
-                                className='menu'
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    toggleMenuVisibility(item.id)
+                                className='flex flex-row justify-between items-center'
+                                style={{ fontWeight: 'bold', cursor: 'pointer' }}
+                                onClick={() => {
+                                    toggleChildrenVisibility(item.id)
+                                    {
+                                        isMenuVisible && toggleMenuVisibility(item.id)
+                                    }
+                                    {
+                                        isInputVisible && toggleInputVisibility(item.id, item.type)
+                                    }
                                 }}
                             >
-                                {!isMenuVisible ? <ImMenu /> : <ImCross />}
-                            </div>
-                            {isMenuVisible && (
-                                <div className='menu-content ml-40 mt-40 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
-                                    <div
-                                        className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
-                                        onClick={() => {
-                                            toggleInputVisibility(item.id)
-                                        }}
-                                    >
-                                        Add Collection
-                                    </div>
-                                    <div className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'>Add Page</div>
-                                    <div className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'>Rename</div>
-                                    <div className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500' onClick={()=>handleDelteCollection(item.id)} >Delete</div>
+                                <div className='flex gap-2 items-center'>
+                                    {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
+                                    {item.name}
                                 </div>
-                            )}
-                        </div>
+                                <div
+                                    className='menu'
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        toggleMenuVisibility(item.id)
+                                    }}
+                                >
+                                    {!isMenuVisible ? <ImMenu /> : <ImCross />}
+                                </div>
+                                {isMenuVisible && (
+                                    <div className='menu-content ml-40 mt-40 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
+                                        <div
+                                            className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
+                                            onClick={() => {
+                                                toggleInputVisibility(item.id, item.type)
+                                            }}
+                                        >
+                                            Add Collection
+                                        </div>
+                                        <div className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
+                                            onClick={() => {
+                                                toggleInputVisibility(item.id, item.type)
+                                            }}
+                                        >
+                                            Add Page
+                                        </div>
+                                        <div className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500' onClick={() => toggleRenameVisibility(item.id)} >Rename</div>
+                                        <div className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500' onClick={() => handleDelteCollection(item.id)} >Delete</div>
+                                    </div>
+                                )}
+                            </div>}
                         {isChildrenVisible && item.children && item.children.map(renderItem)}
                         {isInputVisible && (
                             <input
@@ -206,7 +265,7 @@ const DirectoryMap: React.FC = () => {
             }
             return null
         },
-        [visibleChildren, menuVisibility, toggleChildrenVisibility, toggleMenuVisibility, inputVisible, toggleInputVisibility]
+        [visibleChildren, menuVisibility, rename, toggleChildrenVisibility, toggleMenuVisibility, inputVisible, toggleInputVisibility]
     )
 
     return <div>{structuredData.map(renderItem)}</div>

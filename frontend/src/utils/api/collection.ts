@@ -4,11 +4,13 @@ import {
   REQ_ALL_COLLECTION_BY_PARENT_ID,
   REQ_COLLECTION_BY_ID,
   REQ_COLLECTION_BY_PARENT_ID,
+  REQ_RENAME_COLLECTION,
   RES_ADD_COLLECTION,
   RES_ALL_COLLECTION_BY_PARENT_ID,
   RES_COLLECTION_BY_ID,
   RES_COLLECTION_BY_PARENT_ID,
-  RES_DELETE_COLLECTION_BY_ID
+  RES_DELETE_COLLECTION_BY_ID,
+  RES_RENAME_COLLECTION
 } from '../types/api/collection_Types'
 import { Custom_API_RES } from '../types/api/common'
 import axiosInstance from './axiosInterface'
@@ -64,11 +66,22 @@ const DELETE_COLLECTION_BY_ID = async (data: REQ_DELETE_COLLECTION_BY_ID): Promi
   }
 }
 
+const RENAME_COLLECTION = async (data: REQ_RENAME_COLLECTION): Promise<Custom_API_RES<RES_RENAME_COLLECTION>> => {
+  try {
+    return await axiosInstance()
+      .post('/auth/collection/rename', data)
+      .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error renaming the collection by id: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
   Get_By_Parent_ID,
   Get_All_By_Parent_ID,
-  DELETE_COLLECTION_BY_ID
+  DELETE_COLLECTION_BY_ID,
+  RENAME_COLLECTION
 }
 export default COLLECTION_API
