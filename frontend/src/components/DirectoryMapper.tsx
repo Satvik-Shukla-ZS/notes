@@ -18,7 +18,7 @@ export default DirectoryMapper;
 
 const DirCollection = ({single}:{single:CollectionType | PageType}) => {
     const [isChildVisible, setIsChildVisible] = React.useState(false);
-    const {DataAdder , onAdd , handleAddData , DataRename , onRename , isAdding} = useDirCreator()
+    const {DataAdder , onAdd , handleAddData , DataRename , onRename , isAdding , onDelete , } = useDirCreator()
     const Options = useContext(OptionsContext)
     const { handleAddData : setCollectionData} = useContext(DataContext)
     const [isFetchingData, setIsFetchingData] = useState(false)
@@ -53,7 +53,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
             }}>
                 Rename
             </button>
-            <button className={`flex hover:bg-red-100 p-1 rounded-md text-red-500 `}>Delete</button>
+            <button className={`flex hover:bg-red-100 p-1 rounded-md text-red-500 `} onClick={()=>{onDelete(single.id,single.type)}}>Delete</button>
         </div>
     }
 
@@ -65,7 +65,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
             }}>
                 Rename
             </button>
-            <button className={`flex hover:bg-red-100 p-1 rounded-md text-red-500 `}>Delete</button>
+            <button className={`flex hover:bg-red-100 p-1 rounded-md text-red-500 `} onClick={()=>{onDelete(single.id,single.type)}}>Delete</button>
         </div>
     }
 

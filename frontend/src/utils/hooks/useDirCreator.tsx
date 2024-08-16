@@ -102,6 +102,31 @@ const UseDirCreator = () => {
         setIsAdding(undefined)
     }
 
+    const onDelete = async (id : number , type : "COLLECTION" | "PAGE" ) => {
+        let isSuccess = false;
+
+        if(type === "COLLECTION"){
+            const response = await COLLECTION_API.DELETE({
+                id : id
+            });
+            if(response.code === 200){
+                isSuccess = true
+            }
+        }else if (type === "PAGE" &&parent !== null){
+            const response = await PAGES_API.DELETE({
+                id : id
+            });
+            if(response.code === 200){
+                isSuccess = true
+            }
+        }
+
+        console.log("done")
+
+        if(isSuccess)
+        setData(prevState => prevState.filter((data)=>!(data.id === id && data.type === type)))
+    }
+
     const DataAdder = useCallback(({handleAdd}:{handleAdd:(e:FormEvent<HTMLFormElement>)=>void})=>{
        return <> {
             (isAdding === "COLLECTION" || isAdding === "PAGE") && (
@@ -125,7 +150,7 @@ const UseDirCreator = () => {
         </>
     },[isAdding])
 
-    return {isAdding , dirData , DataAdder , onAdd , handleAddData: handleAdd , DataRename , onRename}
+    return {isAdding , dirData , DataAdder , onAdd , handleAddData: handleAdd , DataRename , onRename , onDelete}
 };
 
 export default UseDirCreator;

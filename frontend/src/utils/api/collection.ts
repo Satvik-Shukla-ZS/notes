@@ -9,6 +9,7 @@ import {
   RES_COLLECTION_BY_PARENT_ID, RES_RENAME_PAGE
 } from '../types/api/collection_Types'
 import axiosInstance from './axiosInterface'
+import {Custom_API_RES} from "../types/api/common";
 
 const ADD = async (data: REQ_ADD_COLLECTION): Promise<RES_ADD_COLLECTION> => {
   try {
@@ -60,11 +61,24 @@ const RENAME = async (data: REQ_RENAME_PAGE): Promise<RES_RENAME_PAGE> => {
   }
 }
 
+const DELETE = async (data: { id:number }): Promise<Custom_API_RES<string>> => {
+  try {
+    return await axiosInstance()
+        .delete('/auth/collection/delete', {
+          data
+        })
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error deleting the page: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
   Get_By_Parent_ID,
   Get_All_By_Parent_ID,
-  RENAME
+  RENAME,
+  DELETE
 }
 export default COLLECTION_API

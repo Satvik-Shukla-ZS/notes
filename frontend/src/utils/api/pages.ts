@@ -7,6 +7,7 @@ import {
   RES_RENAME_PAGE, RES_SAVE_PAGE
 } from '../types/api/collection_Types'
 import axiosInstance from './axiosInterface'
+import {Custom_API_RES} from "../types/api/common";
 
 const ADD = async (data: REQ_ADD_PAGE): Promise<RES_ADD_PAGE> => {
   try {
@@ -48,10 +49,23 @@ const GET = async (data: REQ_GET_PAGE): Promise<RES_GET_PAGE> => {
   }
 }
 
+const DELETE = async (data: { id:number }): Promise<Custom_API_RES<string>> => {
+  try {
+    return await axiosInstance()
+        .delete('/auth/page/delete',{
+          data
+        })
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error deleting the page: ${error}`)
+  }
+}
+
 const PAGES_API = {
   ADD,
   RENAME,
   GET,
-  SAVE
+  SAVE,
+  DELETE
 }
 export default PAGES_API
