@@ -1,86 +1,154 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import Directory, {
-  CollectionType,
-  dataType,
-  DirCollectionProps,
-  DirectoryMapperProps,
-  PageType,
-  ResultArr
-} from '../utils/helper/DirFormatter'
-import { FaRegStickyNote } from 'react-icons/fa'
-import { CiFolderOn } from 'react-icons/ci'
-import COLLECTION_API from '../utils/api/collection'
-import { sign } from 'crypto'
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import Directory from '../utils/helper/DirFormatter';
+import { dataType, ResultArr, CollectionType, PageType } from '../utils/helper/DirFormatter';
+import { FaFolder, FaFolderOpen } from 'react-icons/fa';
+import { FaNoteSticky } from 'react-icons/fa6';
+import { ImMenu, ImCross } from 'react-icons/im';
+import COLLECTION_API from '../utils/api/collection';
 
-const DirectoryMapper: React.FC<DirectoryMapperProps> = ({ data, setinputColl }) => {
-  const [notes, setNotes] = useState<ResultArr>([])
+const DirectoryMap: React.FC = () => {
+    const [data, setData] = useState<ResultArr>([]);
+    const [structuredData, setStructuredData] = useState<ResultArr>([]);
+    const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({});
+    const [visibleChildren, setVisibleChildren] = useState<Set<number>>(new Set());
+    const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({});
+    const input = useRef<Record<number, HTMLInputElement | null>>({});
+    
 
-  useEffect(() => {
-    setNotes(data)
-    console.log(data)
-  }, [notes])
+    useEffect(() => {
+        COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
+            setData(res.data);
+        });
+    }, []);
 
-  const handleAddData = (res: CollectionType) => {
-    setNotes((prevNotes) => [
-      ...prevNotes,
-      {
-        ...res,
-        type: 'COLLECTION',
-        children: []
-      }
-    ])
-  }
+    useEffect(() => {
+        if (data.length > 0) {
+            const directory = new Directory(data as dataType);
+            const result = directory.createObject();
+            setStructuredData(result);
+        }
+    }, [data]);
 
-  return (
-    <>
-      {notes.map((single) => (
-        <DirCollection key={single.id} single={single} />
-      ))}
-    </>
-  )
-}
+    const toggleChildrenVisibility = useCallback((collectionId: number) => {
+        setVisibleChildren(prev => {
+            const newVisibleChildren = new Set(prev);
+            if (newVisibleChildren.has(collectionId)) {
+                newVisibleChildren.delete(collectionId);
+            } else {
+                newVisibleChildren.add(collectionId);
+            }
+            return newVisibleChildren;
+        });
+    }, []);
 
-const DirCollection: React.FC<DirCollectionProps> = ({ single, children }) => {
-  const [isChildVisible, setIsChildVisible] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [takeinputColl, setinputColl] = useState(false)
+    const toggleMenuVisibility = useCallback((collectionId: number) => {
+        setMenuVisibility(prev => ({
+            ...prev,
+            [collectionId]: !prev[collectionId]
+        }));
+    }, []);
 
-  const handleKeyDown = (parent: number | null) => (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && inputRef.current && inputRef.current.value.trim() !== '') {
-      console.log(inputRef.current.value)
-      setinputColl(false)
-      COLLECTION_API.ADD({ name: inputRef.current.value, parent }).then((res) => {
-        console.log(res)
-      })
-    }
-  }
+    const toggleInputVisibility = useCallback((collectionId : number) => {
+        setInputVisible(prev => ({
+            ...prev,
+            [collectionId]: !prev[collectionId]
+        }));
+        setMenuVisibility(prev => ({
+            ...prev,
+            [collectionId]: false
+        }));
+    },[]);
 
-  return (
-    <div className={`flex flex-col`}>
-      <span
-        className={`${single.type === 'COLLECTION' ? 'bg-amber-200' : 'bg-sky-200'}`}
-        onClick={() => setIsChildVisible((prev) => !prev)}
-      >
-        <div
-          className='flex flex-row items-center p-2'
-          onClick={() => {
-            setinputColl((prev) => !prev)
-          }}
-        >
-          {single.type === 'COLLECTION' ? <CiFolderOn /> : <FaRegStickyNote />}
-          <span className='px-2'>{single.name}</span>
+    const handleKeyDown = useCallback((parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && input.current[parentId]) {
+            const inputValue = input.current[parentId]?.value.trim();
+            if (inputValue) {
+                COLLECTION_API.ADD({ name: inputValue, parent: parentId }).then((res) => {
+                    const newItem: CollectionType = {
+                        ...res.data,
+                        type: 'COLLECTION'
+                    };
+                    setData(prevData => [...prevData, newItem]);
+                }).catch(error => {
+                    console.error('Failed to add item:', error);
+                });
+                setInputVisible(prev => ({
+                    ...prev,
+                    [parentId]: false
+                }));
+            }
+        }
+    }, []);
+
+    const renderItem = useCallback((item: CollectionType | PageType) => {
+        if (item.type === 'COLLECTION') {
+            const isChildrenVisible = visibleChildren.has(item.id);
+            const isMenuVisible = menuVisibility[item.id] || false;
+            const isInputVisible = inputVisible[item.id] || false;
+
+            return (
+                <div key={item.id} className='relative mt-2 bg-yellow-300 p-2 border-2 border-black mb-1 hover:bg-yellow-200 shadow-sm shadow-black'>
+                    <div
+                        className='flex flex-row justify-between items-center'
+                        style={{ fontWeight: 'bold', cursor: 'pointer' }}
+                        onClick={() => {
+                            toggleChildrenVisibility(item.id);
+                            {isMenuVisible && toggleMenuVisibility(item.id)}
+                            {isInputVisible && toggleInputVisibility(item.id)}
+                        }}
+                    >
+                        <div className="flex gap-2 items-center">
+                            {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
+                            {item.name}
+                        </div>
+                        <div className="menu" onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMenuVisibility(item.id);
+                        }}>
+                            {!isMenuVisible ? <ImMenu /> : <ImCross />}
+                        </div>
+                        {isMenuVisible && (
+                            <div className="menu-content ml-40 mt-40 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl" >
+                                <div className="menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500"
+                                onClick={()=>{
+                                    toggleInputVisibility(item.id);
+                                }}>
+                                    Add Collection</div>
+                                    <div className="menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500">
+                                    Add Page</div>
+                                <div className="menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500">Rename</div>
+                                <div className="menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500">Delete</div>
+                            </div>
+                        )}
+                    </div>
+                    {isChildrenVisible && item.children && item.children.map(renderItem)}
+                    {isInputVisible && (
+                        <input
+                        type="text"
+                        ref={(el) => { if (el) input.current[item.id] = el; }}
+                        onKeyDown={handleKeyDown(item.id)}
+                        className="border-2 border-black p-2 rounded-lg w-full mt-2"
+                        placeholder="Enter name"
+                    />
+                    )}
+                </div>
+            );
+        } else if (item.type === 'PAGE') {
+            return (
+                <div key={item.id} className='bg-slate-400 hover:bg-slate-300 shadow-sm shadow-black ml-4 border-2 border-black mb-1 p-2 cursor-pointer flex flex-row gap-2 items-center'>
+                    <FaNoteSticky />
+                    <h3>{item.name}</h3>
+                </div>
+            );
+        }
+        return null;
+    }, [visibleChildren, menuVisibility, toggleChildrenVisibility, toggleMenuVisibility, inputVisible, toggleInputVisibility]);
+
+    return (
+        <div>
+            {structuredData.map(renderItem)}
         </div>
-      </span>
-      {'children' in single && isChildVisible && (
-        <span className={`pl-5`}>
-          <DirectoryMapper data={single.children as ResultArr} setinputColl={setinputColl} takeinputColl={takeinputColl} />
-        </span>
-      )}
-      {takeinputColl && <input ref={inputRef} onKeyDown={handleKeyDown(single.id)} className='p-2 m-2' />}
-    </div>
-  )
-}
+    );
+};
 
-export default DirectoryMapper
-
-// export default DirCollection;
+export default DirectoryMap;
