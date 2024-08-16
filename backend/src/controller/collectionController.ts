@@ -101,6 +101,23 @@ class CollectionController {
         return res.json(responseHandler.SUCCESS(result))
     }
 
+    async moveById (req: Request, res: Response , next: NextFunction){
+        const [isBodyValid, request] = reqBodyValidator(req,["parent","id"])
+        if(!isBodyValid) return res.json(request)
+
+        const user = await headerAuthVerify(req)
+        if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
+
+        const { parent , id } = req.body
+
+        const userObj = await UserDatabase.findUser(user.email);
+        if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
+
+        const result = await Database.CollectionDatabase.moveById(parent ? Number(parent) : null , Number(id) , userObj.id).catch(()=>null)
+        if(!result) return res.json(responseHandler.CONFLICT("Collection not moved"))
+        return res.json(responseHandler.SUCCESS("Collection moved successfully"))
+    }
+
     async getAllByParent (req: Request, res: Response , next: NextFunction){
         const [isBodyValid, request] = reqBodyValidator(req,["parent"])
         if(!isBodyValid) return res.json(request)

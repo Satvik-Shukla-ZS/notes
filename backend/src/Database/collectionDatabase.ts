@@ -173,7 +173,9 @@ class CollectionDatabase {
                                     [id, userId],
                                         (err: Error | null) => {
                                             if (err) {
-                                                console.log("ERROR DELETE COLLECTION SINGLE:", err);
+                                                console.log("ERROR DELETE COLLECTION SINGLE:", err , id , userId);
+                                            }else{
+                                                console.log("DELETED COLLECTION SINGLE:", id , userId);
                                             }
                                         }
                                     )
@@ -251,7 +253,20 @@ class CollectionDatabase {
 
         return new Promise<true | null>((resolve, reject) => {
             this.db.get('UPDATE Collection SET name = ? WHERE id = ? AND userRef = ?', [name,collectionId,userId], (err: Error | null, row: Collection | undefined) => {
-                console.log(name , collectionId , userId)
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
+    static async moveById(toCollection:number | null,id:number,userId:number): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('UPDATE Collection SET parent = ? WHERE id = ? AND userRef = ?', [toCollection,id,userId], (err: Error | null, row: Collection | undefined) => {
                 if (err) {
                     reject(null);
                 } else {
