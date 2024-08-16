@@ -7,10 +7,12 @@ import {
   RES_ADD_COLLECTION,
   RES_ALL_COLLECTION_BY_PARENT_ID,
   RES_COLLECTION_BY_ID,
-  RES_COLLECTION_BY_PARENT_ID
+  RES_COLLECTION_BY_PARENT_ID,
+  RES_DELETE_COLLECTION_BY_ID
 } from '../types/api/collection_Types'
 import { Custom_API_RES } from '../types/api/common'
 import axiosInstance from './axiosInterface'
+import { REQ_DELETE_COLLECTION_BY_ID } from '../types/api/collection_Types';
 
 const ADD = async (data: REQ_ADD_COLLECTION): Promise<Custom_API_RES<RES_ADD_COLLECTION>> => {
   try {
@@ -52,10 +54,21 @@ const Get_All_By_Parent_ID = async (data: REQ_ALL_COLLECTION_BY_PARENT_ID): Prom
   }
 }
 
+const DELETE_COLLECTION_BY_ID = async (data: REQ_DELETE_COLLECTION_BY_ID): Promise<Custom_API_RES<RES_DELETE_COLLECTION_BY_ID>> => {
+  try {
+    return await axiosInstance()
+      .delete('/auth/collection/delete', {data})
+      .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error deleting the collection by id: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
   Get_By_Parent_ID,
-  Get_All_By_Parent_ID
+  Get_All_By_Parent_ID,
+  DELETE_COLLECTION_BY_ID
 }
 export default COLLECTION_API
