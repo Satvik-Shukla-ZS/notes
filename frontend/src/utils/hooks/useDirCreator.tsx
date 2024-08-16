@@ -130,7 +130,7 @@ const UseDirCreator = () => {
     const DataAdder = useCallback(({handleAdd}:{handleAdd:(e:FormEvent<HTMLFormElement>)=>void})=>{
        return <> {
             (isAdding === "COLLECTION" || isAdding === "PAGE") && (
-                <form onSubmit={handleAdd} className={`mt-2`}>
+                <form onSubmit={handleAdd} className={``}>
                     <input className={`border-[1px] border-slate-400 px-2 outline-0 rounded-md`} name={"name"} autoFocus/>
                 </form>
             )
@@ -142,7 +142,7 @@ const UseDirCreator = () => {
     const DataRename = useCallback(({handleRename}:{handleRename:(e:FormEvent<HTMLFormElement>)=>void})=>{
         return <> {
             isAdding === "RENAME" && (
-                <form onSubmit={handleRename} className={`mt-2`}>
+                <form onSubmit={handleRename} className={``}>
                     <input className={`border-[1px] border-slate-400 px-2 outline-0 rounded-md`} name={"name"} autoFocus/>
                 </form>
             )

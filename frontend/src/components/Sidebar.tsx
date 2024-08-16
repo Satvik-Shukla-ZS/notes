@@ -28,7 +28,7 @@ const Sidebar = () => {
               <i className="fi fi-br-menu-burger"></i>
           </div>
 
-          <div className={`absolute md:relative left-[40px] md:left-0 h-full flex-col gap-4 z-20 bg-white overflow-hidden transition-all duration-500 ${isMenuOpen ? "w-[0px]" : "w-[250px]"} md:w-[250px] md:flex`}>
+          <div className={`absolute md:relative left-[40px] md:left-0 h-full flex-col gap-4 z-10 bg-white overflow-hidden transition-all duration-500 ${isMenuOpen ? "w-[0px]" : "w-[250px]"} md:w-[250px] md:flex`}>
               <div className={`flex flex-col gap-4 min-w-[250px] p-2 px-5`}>
                   <div className={`flex justify-center p-2`}>
                       <span className={`text-2xl text-gray-700`}>Notes</span>
