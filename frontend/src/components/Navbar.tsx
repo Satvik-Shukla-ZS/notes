@@ -27,13 +27,13 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className='w-full px-2 py-4 flex justify-between'>
+      <nav className='w-full px-2 py-4 flex justify-between h-16'>
         <input type='text' className='w-40 px-4 rounded-md p-2 border-slate-400 border-2' placeholder='Search Notes' />
         <div className='flex flex-row lg:gap-4 max-md:gap-4 md:gap-4 max-sm:gap-2'>
           <div className='flex flex-row gap-2 items-center justify-center'>
-            <img src={profile?.profile} className='rounded-full w-14 h-14 border-2 ' alt="pfp"/>
-            <h1>{profile?profile.name:""}</h1>
-            <RiLogoutCircleLine className='text-2xl cursor-pointer ' onClick={handleLogout}  />
+            <img src={profile?.profile} className='rounded-full w-10 h-10 border-2 ' alt='pfp' />
+            <h1>{profile ? profile.name : ''}</h1>
+            <RiLogoutCircleLine className='text-2xl cursor-pointer ' onClick={handleLogout} />
           </div>
         </div>
       </nav>

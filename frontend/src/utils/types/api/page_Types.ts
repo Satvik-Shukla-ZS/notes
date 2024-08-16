@@ -5,7 +5,7 @@ export interface REQ_ADD_PAGE {
   collectionId: number
 }
 
-export interface RES_ADD_PAGE{
+export interface RES_ADD_PAGE {
   id: number
   name: string
   content: string | null
