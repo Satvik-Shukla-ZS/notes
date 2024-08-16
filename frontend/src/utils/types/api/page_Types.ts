@@ -5,13 +5,13 @@ export interface REQ_ADD_PAGE {
   collectionId: number
 }
 
-export type RES_ADD_PAGE = Custom_API_RES<{
+export interface RES_ADD_PAGE{
   id: number
   name: string
   content: string | null
   isDeleted: 0 | 1
   collectionRef: number
-}>
+}
 
 export interface REQ_GET_PAGE_BY_ID {
   id: number

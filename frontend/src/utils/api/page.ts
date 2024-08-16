@@ -36,7 +36,7 @@ const GET_BY_PAGE_ID = async (data: REQ_GET_PAGE_BY_ID): Promise<Custom_API_RES<
 const DELETE_BY_PAGE_ID = async (data: REQ_DELETE_PAGE_BY_ID): Promise<Custom_API_RES<RES_DELETE_PAGE_BY_ID>> => {
   try {
     return await axiosInstance()
-      .post('/auth/page/delete', data)
+      .delete('/auth/page/delete', { data })
       .then((res) => res.data)
   } catch (error) {
     throw new Error(`Error deleting the page: ${error}`)
