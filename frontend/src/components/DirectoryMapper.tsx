@@ -45,7 +45,7 @@ const DirectoryMap: React.FC = () => {
             ...prev,
             [collectionId]: !prev[collectionId]
         }))
-    }, [])
+    }, [menuVisibility])
 
     const toggleInputVisibility = useCallback((collectionId: number) => {
         setInputVisible((prev) => ({
@@ -54,9 +54,9 @@ const DirectoryMap: React.FC = () => {
         }))
         setMenuVisibility((prev) => ({
             ...prev,
-            [collectionId]: false
+            [collectionId]: !prev[collectionId]
         }))
-    }, [])
+    }, [menuVisibility])
 
     const callApi = async (collectionId: number) => {
         try {
@@ -111,6 +111,15 @@ const DirectoryMap: React.FC = () => {
         },
         []
     )
+    const handleDelteCollection = (collectionId: number) => {
+        
+        COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: collectionId }).then((res) => {
+            console.log(res)
+            setData((prevData) => prevData.filter((item) => item.id !== collectionId))
+        }).catch((error) => {
+            console.error('Failed to delete item:', error)
+        })
+    }
 
     const renderItem = useCallback(
         (item: CollectionType | PageType) => {
@@ -165,7 +174,7 @@ const DirectoryMap: React.FC = () => {
                                     </div>
                                     <div className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'>Add Page</div>
                                     <div className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'>Rename</div>
-                                    <div className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500'>Delete</div>
+                                    <div className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500' onClick={()=>handleDelteCollection(item.id)} >Delete</div>
                                 </div>
                             )}
                         </div>
