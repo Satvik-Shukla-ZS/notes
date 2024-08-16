@@ -54,3 +54,16 @@ export interface REQ_DELETE_COLLECTION_BY_ID {
 export type RES_DELETE_COLLECTION_BY_ID = Custom_API_RES<{
   status: string
 }>
+
+export interface REQ_RENAME_COLLECTION {
+  name: string
+  id: number | null
+}
+
+export type RES_RENAME_COLLECTION = Custom_API_RES<{
+  id: number
+  name: string
+  isDeleted: 0 | 1
+  userRef: number
+  parent: number | null
+}>
