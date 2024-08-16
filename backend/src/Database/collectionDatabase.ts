@@ -135,6 +135,117 @@ class CollectionDatabase {
         });
     }
 
+
+    static async deleteById(collectionId: number, userId: number): Promise<true | string> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | string>((resolve, reject) => {
+            // Start a transaction
+            this.db.run('BEGIN TRANSACTION;', (err: Error | null) => {
+                if (err) {
+                    console.log("ERROR TRANSACTION:", err);
+                    return reject(err);
+                }
+
+                // Recursive function to delete nested collections
+                const deleteNestedCollections = (id: number, userId: number): Promise<void> => {
+                    return new Promise((resolveNested, rejectNested) => {
+                        this.db.all(
+                            'SELECT id FROM Collection WHERE parent = ? AND userRef = ?;',
+                            [id, userId],
+                            async (err: Error | null, rows: { id: number }[]) => {
+                                if (err) {
+                                    console.log("ERROR FETCHING NESTED COLLECTIONS:", err);
+                                    return rejectNested(err);
+                                }
+
+                                // Recursively delete each nested collection
+                                    console.log("ROWS",rows)
+                                for (const row of rows) {
+                                    await deleteNestedCollections(row.id, userId).catch((err) => {
+                                        console.log("ERROR DELETING NESTED COLLECTION:", err);
+                                        return rejectNested(err);
+                                    });
+                                }
+
+                                this.db.run(
+                                    'DELETE FROM Collection WHERE id = ? AND userRef = ?;',
+                                    [id, userId],
+                                        (err: Error | null) => {
+                                            if (err) {
+                                                console.log("ERROR DELETE COLLECTION SINGLE:", err);
+                                            }
+                                        }
+                                    )
+
+                                // After deleting all nested collections, resolve
+                                resolveNested();
+                            }
+                        );
+                    });
+                };
+
+                // Call the recursive delete function
+                deleteNestedCollections(collectionId, userId)
+                    .then(() => {
+                        // Delete all pages associated with the collection
+                        this.db.run(
+                            'DELETE FROM Page WHERE collectionRef = ? AND userRef = ?;',
+                            [collectionId, userId],
+                            (err: Error | null) => {
+                                if (err) {
+                                    console.log("ERROR DELETE PAGES:", err);
+                                    this.db.run('ROLLBACK;', () => reject(err));
+                                } else {
+                                    // Delete the collection itself
+                                    this.db.run(
+                                        'DELETE FROM Collection WHERE id = ? AND userRef = ?;',
+                                        [collectionId, userId],
+                                        (err: Error | null) => {
+                                            if (err) {
+                                                console.log("ERROR DELETE COLLECTION:", err);
+
+                                                this.db.all(
+                                                    'SELECT * FROM Collection WHERE parent = ? AND userRef = ?;',
+                                                    [collectionId, userId],
+                                                    async (err: Error | null, rows: Collection[]) => {
+                                                        if (err) {
+                                                            console.log("ERROR FETCHING FINAL", err);
+                                                        }else{
+                                                            console.log("FINAL",rows)
+                                                        }
+                                                    }
+                                                );
+
+
+                                                this.db.run('ROLLBACK;', () => reject(err));
+                                            } else {
+                                                // Commit the transaction
+                                                this.db.run('COMMIT;', (err: Error | null) => {
+                                                    if (err) {
+                                                        this.db.run('ROLLBACK;', () => reject(err));
+                                                    } else {
+                                                        resolve(true);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    );
+                                }
+                            }
+                        );
+                    })
+                    .catch((err) => {
+                        console.log("ERROR DELETING NESTED COLLECTIONS:", err);
+                        this.db.run('ROLLBACK;', () => reject(err));
+                    });
+            });
+        });
+    }
+
+
+
+
     static async renameById(collectionId : number,userId:number,name:string): Promise<true | null> {
         if (!this.db) throw new Error('Database not initialized');
 

@@ -45,6 +45,26 @@ class CollectionController {
 
     }
 
+    async deleteById (req: Request, res: Response , next: NextFunction){
+        const [isBodyValid, request] = reqBodyValidator(req,["id"])
+        if(!isBodyValid) return res.json(request)
+
+        const user = await headerAuthVerify(req)
+        if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
+
+        const { id} = request.body
+
+        const userObj = await UserDatabase.findUser(user.email);
+        if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
+
+        const result = await Database.CollectionDatabase.deleteById(Number(id),userObj.id).catch((error:Error)=>"Error while deleting")
+        if(typeof result === "string") return res.json(responseHandler.CONFLICT(result))
+
+        console.log(result , id)
+        return res.json(responseHandler.SUCCESS("Deleted collection"))
+
+    }
+
     async rename (req: Request, res: Response , next: NextFunction){
         const [isBodyValid, request] = reqBodyValidator(req,["id","name"])
         if(!isBodyValid) return res.json(request)

@@ -179,6 +179,20 @@ class PageDatabase {
         });
     }
 
+    static async deleteById(pageId : number , userId : number): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('DELETE FROM Page WHERE id = ? AND userRef = ?', [pageId , userId], (err: Error | null, row: Page | undefined) => {
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
     static async findByCollectionId(collectionId : number , userId : number): Promise<Page[] | null> {
         if (!this.db) throw new Error('Database not initialized');
 
