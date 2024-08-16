@@ -7,23 +7,26 @@ import OptionsProvider from "./utils/Context/OptionsProvider";
 import PageViewer from "./pages/PageViewer";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
+import DragProvider from "./utils/Context/DragProvider";
 
 const CustomRouter = () => {
     return (
-        <BrowserRouter>
-            <DataProvider>
+        <DataProvider>
+            <DragProvider>
                 <OptionsProvider>
-                    <Routes>
-                        <Route path='/login' element={<SignIn/>}/>
-                        <Route path='/' Component={Layout}>
-                            <Route path='/' element={<Home/>}/>
-                            <Route path=':collId/:pageId/' element={<PageViewer/>}/>
-                        </Route>
-                        <Route path='*' element={<NotFound/>}/>
-                    </Routes>
+                    <BrowserRouter>
+                            <Routes>
+                                <Route path='/login' element={<SignIn/>}/>
+                                <Route path='/' Component={Layout}>
+                                    <Route path='/' element={<Home/>}/>
+                                    <Route path=':collId/:pageId/' element={<PageViewer/>}/>
+                                </Route>
+                                <Route path='*' element={<NotFound/>}/>
+                            </Routes>
+                    </BrowserRouter>
                 </OptionsProvider>
-            </DataProvider>
-        </BrowserRouter>
+            </DragProvider>
+        </DataProvider>
     );
 }
 

@@ -5,14 +5,39 @@ import {OptionsContext} from "../utils/Context/OptionsProvider";
 import COLLECTION_API from "../utils/api/collection";
 import {DataContext} from "../utils/Context/DataProvider";
 import {useNavigate} from "react-router-dom";
+import {DragContext} from "../utils/Context/DragProvider";
 
 const DirectoryMapper = ({data}: { data : ResultArr }) => {
-    return<>
+    const { isDragging  , closeDrag , onMove , hoverData } = useContext(DragContext)
+
+    return <div className={`flex flex-col px-2 rounded-md ${isDragging && hoverData && hoverData.type === "COLLECTION" && hoverData.id === null && "bg-slate-100"}`}
+               onMouseUpCapture={()=>{
+                   closeDrag({
+                       id : null,
+                       type: "COLLECTION"
+                   })
+               }}
+                onMouseMoveCapture={(e)=>{
+                    if(isDragging){
+                        onMove(e,null,"COLLECTION")
+                    }
+                }}
+
+    >
         { data.map((single) => <DirCollection single={single} key={`map-${single.id}-${single.type}`}/>) }
-    </>
+    </div>
 };
 
 export default DirectoryMapper;
+
+
+const ArrayMapper = ({data}: { data : ResultArr }) => {
+    const { isDragging  , closeDrag , onMove , hoverData } = useContext(DragContext)
+
+    return <div className={`flex flex-col px-2 rounded-md ${isDragging && hoverData && hoverData.type === "COLLECTION" && hoverData.id === null && "bg-slate-100"}`}>
+        { data.map((single) => <DirCollection single={single} key={`map-${single.id}-${single.type}`}/>) }
+    </div>
+};
 
 
 
@@ -23,6 +48,10 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
     const { handleAddData : setCollectionData} = useContext(DataContext)
     const [isFetchingData, setIsFetchingData] = useState(false)
     const navigate = useNavigate();
+    const { isDragging , onDrag  , closeDrag , dragData , onMove , hoverData} = useContext(DragContext)
+
+    const [dragTimeout, setDragTimeout] = useState<NodeJS.Timeout>()
+
 
     if(!Options)
         return <></>
@@ -84,9 +113,29 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
         setIsChildVisible(prev => !prev)
     }
 
-    return <div className={`flex flex-col w-[200px] ${!("children" in single) ? "" : "pb-1"} text-xs`}>
+    return <div className={`flex flex-col w-[200px] ${!("children" in single) ? "" : "pb-1"} text-xs z-10 pointer-events-auto ${isDragging && hoverData && hoverData.type === single.type && hoverData.id === single.id && "bg-slate-100"}`}
+                onMouseMoveCapture={(e)=>{
+                    if (isDragging && single.type === "COLLECTION") onMove(e,single.id,single.type)
+                }}
+                onMouseUpCapture={()=>{
+                    if(single.type === "COLLECTION") {
+                        closeDrag(single)
+                        clearTimeout(dragTimeout)
+                    }
+                }}
+    >
            <span
-               className={`flex relative gap-2 items-center hover:bg-slate-100 p-1 rounded-md ${single.type === "COLLECTION" ? "" : ""}`}>
+               className={`flex relative gap-2 items-center hover:bg-slate-100 p-1 rounded-md ${single.type === "COLLECTION" ? "" : ""} select-none ${isDragging && dragData?.id === single.id && dragData.type === single.type && "bg-sky-100"}`}
+
+               onMouseDownCapture={(e)=>{
+                  if(single.type === "COLLECTION"){
+                      const Time = setTimeout(()=>{
+                          onDrag(single)
+                      },500)
+                      setDragTimeout(Time)
+                  }
+                }}
+           >
                 {
                     !(isAdding === "RENAME") ? (
                         <>
@@ -154,7 +203,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
         {
             "children" in single && isChildVisible ?
                 <span className={`pl-5 border-l-2 border-slate-100 flex flex-col`}>
-                         <DirectoryMapper data={single.children as ResultArr}/>
+                         <ArrayMapper data={single.children as ResultArr}/>
                         <DataAdder handleAdd={(e)=>{handleAddData(e,single.id)}} />
                     </span> : ""
         }

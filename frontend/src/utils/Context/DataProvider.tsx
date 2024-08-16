@@ -23,19 +23,20 @@ const DataProvider = ({children}:PropsWithChildren) => {
         });
 
         const uniqueData = Array.from(dataMap.values());
-        console.log(dataParent);
-        console.log(uniqueData);
         setData(uniqueData);
     };
 
     useEffect(() => {
         COLLECTION_API.Get_All_By_Parent_ID({parent:null}).then((res)=>{
             if(res.code === 200){
-                console.log(res.data)
                 setData(res.data)
             }
         })
     }, []);
+
+    useEffect(() => {
+        console.log(data)
+    }, [data]);
 
     return (
         <DataContext.Provider value={{data,handleAddData,setData}}>
