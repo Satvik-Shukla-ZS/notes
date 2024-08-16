@@ -5,9 +5,6 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { getCookieByName } from '../utils/cookie'
 import USER_API from '../utils/api/user'
 import Content from '../pages/Content'
-import data from './data'
-import DirectoryMapper from './DirectoryMapper'
-import Directory, { dataType, ResultArr } from '../utils/helper/DirFormatter'
 
 const Layout = () => {
   const navigate = useNavigate()
@@ -15,11 +12,7 @@ const Layout = () => {
   useEffect(() => {
     if (!getCookieByName('token')) {
       navigate('/login')
-    } else {
-      ;(async () => {
-        const response = await USER_API.GET_PROFILE()
-      })()
-    }
+    } 
   }, [navigate])
 
   if (!getCookieByName('token')) {

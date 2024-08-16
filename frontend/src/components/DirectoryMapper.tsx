@@ -55,9 +55,36 @@ const DirectoryMap: React.FC = () => {
         }));
         setMenuVisibility(prev => ({
             ...prev,
-            [collectionId]: false
+            [collectionId]: !prev[collectionId]
         }));
     },[]);
+
+    const callApi = async (collectionId : number) => {
+        try {
+            const res = await COLLECTION_API.Get_All_By_Parent_ID({ parent: collectionId });
+            const newItems = res.data;
+            setData(prevData => {
+                const dataSet = new Set(prevData.map(item => item.id));
+                const itemsToAdd : ResultArr = [];
+                const itemsToRemove : ResultArr = [];
+
+                newItems.forEach(item => {
+                    if (dataSet.has(item.id)) {
+                        itemsToRemove.push(item);
+                    } else {
+                        itemsToAdd.push(item);
+                    }
+                });
+                const updatedData = prevData
+                    .filter(item => !itemsToRemove.includes(item))
+                    .concat(itemsToAdd);
+
+                return updatedData;
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
     const handleKeyDown = useCallback((parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && input.current[parentId]) {
@@ -68,6 +95,7 @@ const DirectoryMap: React.FC = () => {
                         ...res.data,
                         type: 'COLLECTION'
                     };
+                    console.log(res)
                     setData(prevData => [...prevData, newItem]);
                 }).catch(error => {
                     console.error('Failed to add item:', error);
@@ -87,7 +115,9 @@ const DirectoryMap: React.FC = () => {
             const isInputVisible = inputVisible[item.id] || false;
 
             return (
-                <div key={item.id} className='relative mt-2 bg-yellow-300 p-2 border-2 border-black mb-1 hover:bg-yellow-200 shadow-sm shadow-black'>
+                <div key={item.id} className='relative mt-2 bg-yellow-300 p-2 border-2 border-black mb-1 hover:bg-yellow-200 shadow-sm shadow-black'
+                    onClick={()=> {callApi(item.id)}}
+                >
                     <div
                         className='flex flex-row justify-between items-center'
                         style={{ fontWeight: 'bold', cursor: 'pointer' }}
@@ -135,7 +165,7 @@ const DirectoryMap: React.FC = () => {
             );
         } else if (item.type === 'PAGE') {
             return (
-                <div key={item.id} className='bg-slate-400 hover:bg-slate-300 shadow-sm shadow-black ml-4 border-2 border-black mb-1 p-2 cursor-pointer flex flex-row gap-2 items-center'>
+                <div key={item.id} className='bg-slate-400 hover:bg-slate-300 shadow-sm shadow-black border-2 border-black mb-1 p-2 cursor-pointer flex flex-row gap-2 items-center'>
                     <FaNoteSticky />
                     <h3>{item.name}</h3>
                 </div>
