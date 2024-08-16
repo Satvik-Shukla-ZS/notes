@@ -25,7 +25,7 @@ const Layout = () => {
 
   return (
     <>
-      <div className='flex w-full'>
+      <div className='flex w-full h-screen'>
         <Sidebar />
         <div className='flex flex-col gap-2 w-full bg-slate-100'>
           <Navbar />
