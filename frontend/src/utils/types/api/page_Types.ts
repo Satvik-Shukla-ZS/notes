@@ -17,13 +17,13 @@ export interface REQ_GET_PAGE_BY_ID {
   id: number
 }
 
-export type RES_GET_PAGE_BY_ID = Custom_API_RES<{
+export type RES_GET_PAGE_BY_ID = {
   id: number
   name: string
   content: string | null
   isDeleted: 0 | 1
   collectionRef: number
-}>
+}
 
 export interface REQ_DELETE_PAGE_BY_ID {
   id: number

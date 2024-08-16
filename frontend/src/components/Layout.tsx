@@ -1,36 +1,39 @@
-import React, { useEffect } from 'react'
-import Sidebar from './Sidebar'
-import Navbar from './Navbar'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { getCookieByName } from '../utils/cookie'
-import USER_API from '../utils/api/user'
-import Content from '../pages/Content'
+import React, { useEffect } from 'react';
+import Sidebar from './Sidebar';
+import Navbar from './Navbar';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { getCookieByName } from '../utils/cookie';
+import Content from '../pages/Content';
+import { ContentProvider } from '../utils/context/Content';
+import { PageIdProvider } from '../utils/context/PageId';
 
 const Layout = () => {
-  const navigate = useNavigate()
+    const navigate = useNavigate();
 
-  useEffect(() => {
+    useEffect(() => {
+        if (!getCookieByName('token')) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
     if (!getCookieByName('token')) {
-      navigate('/login')
-    } 
-  }, [navigate])
+        return <></>;
+    }
 
-  if (!getCookieByName('token')) {
-    return <></>
-  }
+    return (
+        <ContentProvider>
+            <PageIdProvider>
+              <div className='flex w-full'>
+                  <Sidebar />
+                  <div className='flex flex-col gap-2 w-full'>
+                      <Navbar />
+                      <Outlet />
+                      <Content />
+                  </div>
+              </div>
+            </PageIdProvider>
+        </ContentProvider>
+    );
+};
 
-  return (
-    <>
-      <div className='flex w-full'>
-        <Sidebar />
-        <div className='flex flex-col gap-2 w-full'>
-          <Navbar />
-          <Outlet />
-          <Content />
-        </div>
-      </div>
-    </>
-  )
-}
-
-export default Layout
+export default Layout;

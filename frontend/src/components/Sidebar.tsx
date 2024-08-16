@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
 import DirectoryMap from './DirectoryMapper'
 import Directory, { dataType, ResultArr } from '../utils/helper/DirFormatter'
-import { RiFolderAddLine } from 'react-icons/ri'
+import { FaPlus } from "react-icons/fa";
 import COLLECTION_API from '../utils/api/collection'
 // import data from './data'
 
@@ -37,13 +37,15 @@ const Sidebar = () => {
   return (
     <>
       <div className='sidebar h-screen bg-slate-100 w-1/5 p-2'>
+      <h1 className='text-center text-2xl font-extrabold font- mt-12 mb-4' >NoteBlock</h1>
         <inputContext.Provider value={takeinputColl}>
           <div className='flex justify-center py-2 text-3xl'>
-            <RiFolderAddLine
+            <FaPlus
               onClick={handleAddCollection}
-              className='bg-slate-300 rounded-lg text-2xl hover:bg-slate-400 cursor-pointer w-full'
+              className='bg-slate-300 rounded-lg text-2xl hover:bg-slate-400 cursor-pointer py-1 w-full mb-2'
             />
           </div>
+          <hr className='border-2 border-black mb-4' />
           <DirectoryMap />
           {takeinputColl && (
             <input
