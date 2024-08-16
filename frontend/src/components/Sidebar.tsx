@@ -34,10 +34,13 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className='sidebar h-screen bg-slate-400 w-1/6 p-2'>
+      <div className='sidebar h-screen bg-slate-100 w-1/5 p-2'>
         <inputContext.Provider value={takeinputColl}>
           <div className='flex justify-center py-2 text-3xl'>
-            <RiFolderAddLine onClick={handleAddCollection} />
+            <RiFolderAddLine
+              onClick={handleAddCollection}
+              className='bg-slate-300 rounded-lg text-2xl hover:bg-slate-400 cursor-pointer w-full'
+            />
           </div>
           <DirectoryMap />
           {takeinputColl && <input ref={inputRef} onKeyDown={handleKeyDown(null)} className='p-2 m-2' />}
