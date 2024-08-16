@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {RES_USER_PROFILE} from "../utils/types/api/user";
 import USER_API from "../utils/api/user";
 import {useNavigate} from "react-router-dom";
+import {delete_cookie} from "../utils/helper/cookie";
 
 const Navbar = () => {
     const [userData, setUserData] = useState<RES_USER_PROFILE>()
@@ -19,6 +20,11 @@ const Navbar = () => {
         })
     }, []);
 
+    const handleSignOut = async () => {
+        delete_cookie("token");
+        navigate("/login")
+    }
+
   return (
     <>
       <nav className='p-2 flex justify-between'>
@@ -26,7 +32,7 @@ const Navbar = () => {
           <div className={`flex gap-2 items-center`}>
               <img className={`max-w-[30px] aspect-square rounded-full border-gray-200 border-[1px] bg-white`} src={userData ? userData.profile : ""} alt={"user profile"} />
               <span>{userData && userData.name}</span>
-              <span className={`bg-white w-[30px] rounded-md aspect-square flex justify-center items-center`}><i className="fi fi-ts-arrow-left-from-arc"></i></span>
+              <button onClick={handleSignOut} className={`bg-white w-[30px] rounded-md aspect-square flex justify-center items-center`}><i className="fi fi-ts-arrow-left-from-arc"></i></button>
           </div>
       </nav>
     </>

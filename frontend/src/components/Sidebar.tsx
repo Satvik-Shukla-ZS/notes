@@ -23,7 +23,7 @@ const Sidebar = () => {
     }, []);
 
   return (
-      <div className='sidebar h-screen bg-white w-fit flex flex-col p-2 gap-4 px-5'>
+      <div className='sidebar h-screen bg-white w-fit flex flex-col p-2 gap-4 px-5 min-w-[250px]'>
           <div className={`flex justify-center p-2`}>
               <span className={`text-2xl text-gray-700`}>Notes</span>
           </div>

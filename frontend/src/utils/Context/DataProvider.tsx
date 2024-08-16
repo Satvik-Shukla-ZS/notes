@@ -1,6 +1,5 @@
 import React, {PropsWithChildren, useEffect} from 'react';
 import {dataType} from "../helper/DirFormatter";
-import dataArr from "../../components/data";
 import COLLECTION_API from "../api/collection";
 
 export const DataContext = React.createContext<{
@@ -14,7 +13,7 @@ export const DataContext = React.createContext<{
 })
 
 const DataProvider = ({children}:PropsWithChildren) => {
-    const [data,setData] = React.useState<dataType>(dataArr as dataType);
+    const [data,setData] = React.useState<dataType>([]);
 
     const handleAddData = (dataParent: dataType) => {
         const dataMap = new Map(data.map(item => [`${item.id}-${item.type}`, item]));
