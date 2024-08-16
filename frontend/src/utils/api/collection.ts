@@ -73,12 +73,25 @@ const DELETE = async (data: { id:number }): Promise<Custom_API_RES<string>> => {
   }
 }
 
+const MOVE = async (data: { id:number , parent:number | null }): Promise<Custom_API_RES<string>> => {
+  try {
+    return await axiosInstance()
+        .post('/auth/collection/moveById', 
+          data
+        )
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error deleting the page: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
   Get_By_Parent_ID,
   Get_All_By_Parent_ID,
   RENAME,
-  DELETE
+  DELETE,
+  MOVE
 }
 export default COLLECTION_API

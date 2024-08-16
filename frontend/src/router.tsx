@@ -19,7 +19,7 @@ const CustomRouter = () => {
                                 <Route path='/login' element={<SignIn/>}/>
                                 <Route path='/' Component={Layout}>
                                     <Route path='/' element={<Home/>}/>
-                                    <Route path=':collId/:pageId/' element={<PageViewer/>}/>
+                                    <Route path='/:pageId/' element={<PageViewer/>}/>
                                 </Route>
                                 <Route path='*' element={<NotFound/>}/>
                             </Routes>

@@ -2,6 +2,7 @@ import React, {PropsWithChildren, useContext, useEffect, useState} from 'react';
 import {CollectionType, dataType, PageType} from "../helper/DirFormatter";
 import COLLECTION_API from "../api/collection";
 import {DataContext} from "./DataProvider";
+import PAGES_API from "../api/pages";
 
 export const DragContext = React.createContext<{
     isDragging:boolean,
@@ -52,12 +53,26 @@ const DragProvider = ({children}:PropsWithChildren) => {
         })
     }
 
-    const closeDrag = (dataParent: { id : number | null , type : "COLLECTION" | "PAGE" }) =>{
+    const closeDrag = async (dataParent: { id : number | null , type : "COLLECTION" | "PAGE" }) =>{
         if(!dragData || !isDragging) return;
 
         console.log(dataParent)
 
         if(dataParent.id === dragData.id && dragData.type === dataParent.type) return;
+
+        let isSuccess = false;
+
+        if(dragData.type === "COLLECTION"){
+            await COLLECTION_API.MOVE({
+                id : dragData.id,
+                parent : dataParent.id
+            })
+        }else{
+            await PAGES_API.MOVE({
+                id : dragData.id,
+                parent : dataParent.id
+            })
+        }
 
         const clone = data.map((single)=>{
             if(dragData && single.id === dragData.id){

@@ -6,7 +6,7 @@ import PAGES_API from "../utils/api/pages";
 import {PageType} from "../utils/helper/DirFormatter";
 
 const PageViewer = () => {
-    const {collId , pageId} = useParams()
+    const {pageId} = useParams()
     const [initialData, setInitialData] = useState<string | null>(null)
     const [pageData, setPageData] = useState<PageType | null>(null)
     const [isReadOnly, setIsReadOnly] = useState(true)
@@ -19,7 +19,7 @@ const PageViewer = () => {
         setInitialData(null)
         setValue(null)
         setIsDataUpdating(false)
-    }, [pageId,collId]);
+    }, [pageId]);
 
     useEffect(() => {
         if(pageId){
@@ -41,7 +41,7 @@ const PageViewer = () => {
             setIsDataFetching(false)
         }
 
-    }, [collId,pageId]);
+    }, [pageId]);
 
     useEffect(() => {
         setValue(initialData)

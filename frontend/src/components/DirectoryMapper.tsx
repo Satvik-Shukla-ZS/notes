@@ -120,20 +120,18 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
                 onMouseUpCapture={()=>{
                     if(single.type === "COLLECTION") {
                         closeDrag(single)
-                        clearTimeout(dragTimeout)
                     }
+                    clearTimeout(dragTimeout)
                 }}
     >
            <span
                className={`flex relative gap-2 items-center hover:bg-slate-100 p-1 rounded-md ${single.type === "COLLECTION" ? "" : ""} select-none ${isDragging && dragData?.id === single.id && dragData.type === single.type && "bg-sky-100"}`}
 
                onMouseDownCapture={(e)=>{
-                  if(single.type === "COLLECTION"){
-                      const Time = setTimeout(()=>{
-                          onDrag(single)
-                      },500)
-                      setDragTimeout(Time)
-                  }
+                   const Time = setTimeout(()=>{
+                       onDrag(single)
+                   },500)
+                   setDragTimeout(Time)
                 }}
            >
                 {
@@ -160,7 +158,7 @@ const DirCollection = ({single}:{single:CollectionType | PageType}) => {
                                           if(single.type === "COLLECTION"){
                                               handleOpenDir(single.id)
                                           }else {
-                                              navigate(`${single.collectionRef}/${single.id}`);
+                                              navigate(`${single.id}`);
                                           }
                                       }}
                                         >{single.name}</span>

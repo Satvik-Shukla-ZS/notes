@@ -61,11 +61,24 @@ const DELETE = async (data: { id:number }): Promise<Custom_API_RES<string>> => {
   }
 }
 
+const MOVE = async (data: { id:number , parent:number | null }): Promise<Custom_API_RES<string>> => {
+  try {
+    return await axiosInstance()
+        .post('/auth/page/moveById',
+            data
+        )
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error deleting the page: ${error}`)
+  }
+}
+
 const PAGES_API = {
   ADD,
   RENAME,
   GET,
   SAVE,
-  DELETE
+  DELETE,
+  MOVE
 }
 export default PAGES_API
