@@ -131,6 +131,20 @@ class PageDatabase {
         });
     }
 
+    static async moveById(toCollection:number | null,id:number,userId:number): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('UPDATE Page SET collectionRef = ? WHERE id = ? AND userRef = ?', [toCollection,id,userId], (err: Error | null, row: Collection | undefined) => {
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
     static async renameById(pageId : number,userId:number,name:string): Promise<true | null> {
         if (!this.db) throw new Error('Database not initialized');
 
@@ -174,6 +188,20 @@ class PageDatabase {
                     reject(null);
                 } else {
                     resolve(row || null);
+                }
+            });
+        });
+    }
+
+    static async deleteById(pageId : number , userId : number): Promise<true | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<true | null>((resolve, reject) => {
+            this.db.get('DELETE FROM Page WHERE id = ? AND userRef = ?', [pageId , userId], (err: Error | null, row: Page | undefined) => {
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(true);
                 }
             });
         });
