@@ -24,7 +24,7 @@ const SignIn = () => {
                       onSuccess={(credentialResponse) => {
                         console.log(credentialResponse)
                         document.cookie = `token=${credentialResponse.credential}`
-                        navigate('/')
+                        navigate('/app')
                       }}
                       onError={() => {
                         console.log('Login Failed')

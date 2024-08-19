@@ -15,3 +15,4 @@ This application is a note taking webapp.
 - Satvik Shukla
 - Satyam Trivedi
 - Andrew William Staines
+- Sadwika
