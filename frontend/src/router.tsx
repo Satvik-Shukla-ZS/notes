@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Features from './pages/Features'
+import Content from './pages/Content';
 
 const CustomRouter = () => {
   return (
@@ -18,7 +19,8 @@ const CustomRouter = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path='/app' Component={Layout}>
           <Route path='user' element={<>skajdsal</>} />
-
+          <Route path='/' Component={Layout}>
+          <Route path={"/page/:id"} element={<Content />} />
         </Route>
       </Routes>
     </BrowserRouter>
