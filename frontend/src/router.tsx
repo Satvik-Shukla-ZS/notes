@@ -17,11 +17,11 @@ const CustomRouter = () => {
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path='/app' Component={Layout}>
-          <Route path='user' element={<>skajdsal</>} />
-          <Route path='/' Component={Layout}>
-          <Route path={"/page/:id"} element={<Content />} />
-        </Route>
+        <Route path='/app' Component={Layout} />
+        <Route path='user' element={<>skajdsal</>} />
+        <Route />
+        <Route path={"/page/:id"} element={<Content />} />
+
       </Routes>
     </BrowserRouter>
   )
