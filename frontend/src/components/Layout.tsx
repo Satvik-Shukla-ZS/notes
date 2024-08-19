@@ -3,7 +3,6 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { getCookieByName } from '../utils/cookie';
-import Content from '../pages/Content';
 import { ContentProvider } from '../utils/context/Content';
 import { PageIdProvider } from '../utils/context/PageId';
 
@@ -14,7 +13,7 @@ const Layout = () => {
         if (!getCookieByName('token')) {
             navigate('/login');
         }
-    }, [navigate]);
+    }, []);
 
     if (!getCookieByName('token')) {
         return <></>;
@@ -28,7 +27,6 @@ const Layout = () => {
                   <div className='flex flex-col gap-2 w-full'>
                       <Navbar />
                       <Outlet />
-                      <Content />
                   </div>
               </div>
             </PageIdProvider>

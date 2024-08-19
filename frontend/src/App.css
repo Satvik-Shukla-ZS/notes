@@ -22,3 +22,7 @@ body{
 .area:focus {
   outline: none;
 }
+
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
