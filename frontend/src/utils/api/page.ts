@@ -3,11 +3,13 @@ import {
   REQ_ADD_PAGE,
   REQ_DELETE_PAGE_BY_ID,
   REQ_GET_PAGE_BY_ID,
+  REQ_MOVE_PAGE,
   REQ_RENAME_PAGE,
   REQ_SAVE_PAGE,
   RES_ADD_PAGE,
   RES_DELETE_PAGE_BY_ID,
   RES_GET_PAGE_BY_ID,
+  RES_MOVE_PAGE,
   RES_RENAME_PAGE,
   RES_SAVE_PAGE
 } from '../types/api/page_Types'
@@ -63,11 +65,22 @@ const RENAME_PAGE = async (data: REQ_RENAME_PAGE): Promise<Custom_API_RES<RES_RE
   }
 }
 
+const MOVE_PAGE = async (data: REQ_MOVE_PAGE): Promise<Custom_API_RES<RES_MOVE_PAGE>> => {
+  try {
+    return await axiosInstance()
+      .post('/auth/page/moveById', data)
+      .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error moving the page by id: ${error}`)
+  }
+}
+
 const PAGE_API = {
   ADD_PAGE,
   GET_BY_PAGE_ID,
   DELETE_BY_PAGE_ID,
   SAVE_PAGE,
-  RENAME_PAGE
+  RENAME_PAGE,
+  MOVE_PAGE
 }
 export default PAGE_API

@@ -10,6 +10,7 @@ export const toggleChildrenVisibility = (collectionId: number, setLoading: React
     } else {
         setLoading(prev => ({ ...prev, [collectionId]: true }))
         setTimeout(() => {
+            let prevData = JSON.parse(localStorage.getItem("data") || "[]")
             setVisibleChildren((prev) => {
                 const newVisibleChildren = new Set(prev)
                 if (newVisibleChildren.has(collectionId)) {
@@ -19,6 +20,21 @@ export const toggleChildrenVisibility = (collectionId: number, setLoading: React
                 }
                 return newVisibleChildren
             })
+            let resData: any[] = []
+            prevData.forEach((ele: any) => {
+                if( ele.type === "COLLECTION"){
+                    if(ele.parent !== collectionId){
+                        resData.push(ele)
+                    }   
+                }
+                else if(ele.type === "PAGE"){
+                    if(ele.collectionRef !== collectionId){
+                        resData.push(ele)
+                    }
+                }   
+            });
+            console.log(resData)
+            localStorage.setItem("data", JSON.stringify(resData))
             setLoading(prev => ({ ...prev, [collectionId]: false }))
         }, 300)
     }
