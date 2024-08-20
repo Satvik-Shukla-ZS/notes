@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef, useContext } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import Directory from '../utils/helper/DirFormatter'
 import { dataType, ResultArr, CollectionType, PageType } from '../utils/helper/DirFormatter'
 import { FaFolder, FaFolderOpen } from 'react-icons/fa'
@@ -12,6 +12,8 @@ import COLLECTION_API from '../utils/api/collection'
 import PAGE_API from '../utils/api/page'
 import { Toast } from '../utils/alert/sweetAlert2'
 import { Link, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { toggleSelect, toggleMenuVisibility, toggleInputVisibility, toggleChildrenVisibility, toggleRenameVisibility } from '../utils/helper/ToggleFunctions'
 
 const DirectoryMap: React.FC = () => {
     const [data, setData] = useState<ResultArr>([])
@@ -26,11 +28,9 @@ const DirectoryMap: React.FC = () => {
     const [loading, setLoading] = useState<Record<number, boolean>>({})
     const [isSelect, setIsSelect] = useState<boolean>(false)
     const [selected, setSelected] = useState<Array<number>>(new Array())
+    const navigate = useNavigate()
 
     const pageId = Number(useParams().id ?? -1);
-
-    console.log({pageId: pageId});
-    
 
     useEffect(() => {
         COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
@@ -45,68 +45,6 @@ const DirectoryMap: React.FC = () => {
             setStructuredData(result)
         }
     }, [data])
-
-    const toggleChildrenVisibility = useCallback((collectionId: number) => {
-        if (isSelect) {
-            setSelected(prev => {
-                if (prev.includes(collectionId)) {
-                    return prev.filter(item => item !== collectionId)
-                } else {
-                    return [...prev, collectionId]
-                }
-            })
-        } else {
-            setLoading(prev => ({ ...prev, [collectionId]: true }))
-            setTimeout(() => {
-                setVisibleChildren((prev) => {
-                    const newVisibleChildren = new Set(prev)
-                    if (newVisibleChildren.has(collectionId)) {
-                        newVisibleChildren.delete(collectionId)
-                    } else {
-                        newVisibleChildren.add(collectionId)
-                    }
-                    return newVisibleChildren
-                })
-                setLoading(prev => ({ ...prev, [collectionId]: false }))
-            }, 1000)
-        }
-    }, [isSelect])
-
-    const toggleSelect = useCallback(() => {
-        setIsSelect(prev => !prev)
-    }, []);
-
-    const toggleMenuVisibility = useCallback(
-        (collectionId: number) => {
-            setMenuVisibility((prev) => ({
-                ...prev,
-                [collectionId]: !prev[collectionId]
-            }))
-        },
-        [menuVisibility]
-    )
-
-    const toggleInputVisibility = useCallback(
-        (collectionId: number, type: string) => {
-            setInputVisible((prev) => ({
-                ...prev,
-                [collectionId]: !prev[collectionId]
-            }))
-            setMenuVisibility((prev) => ({
-                ...prev,
-                [collectionId]: !prev[collectionId]
-            }))
-            setType(type)
-        },
-        [menuVisibility]
-    )
-
-    const toggleRenameVisibility = useCallback((collectionId: number) => {
-        setRename((prev) => ({
-            ...prev,
-            [collectionId]: !prev[collectionId]
-        }))
-    }, [])
 
     const callApi = async (collectionId: number) => {
         try {
@@ -137,7 +75,7 @@ const DirectoryMap: React.FC = () => {
     const handleKeyDown = useCallback(
         (parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter' && input.current[parentId] && input.current[parentId]?.value === '') {
-                toggleInputVisibility(parentId, type)
+                toggleInputVisibility(parentId, type, setMenuVisibility, setInputVisible, setType)
             } else if (e.key === 'Enter' && input.current[parentId]) {
                 const inputValue = input.current[parentId]?.value.trim()
                 if (inputValue && type === 'COLLECTION') {
@@ -238,12 +176,13 @@ const DirectoryMap: React.FC = () => {
                 .catch((error) => {
                     console.error('Failed to delete item:', error)
                 })
+                navigate('/app')
         }
     }
 
     const handleRename = (e: React.KeyboardEvent<HTMLInputElement>, collectionId: number, type: string) => {
         if (e.key === 'Enter' && renameRef.current && renameRef.current.value === '') {
-            toggleRenameVisibility(collectionId)
+            toggleRenameVisibility(collectionId, setRename)
         }
         if (e.key === 'Enter' && renameRef.current) {
             const inputValue = renameRef.current.value.trim()
@@ -260,7 +199,7 @@ const DirectoryMap: React.FC = () => {
                                 })
                             )
 
-                            toggleRenameVisibility(collectionId)
+                            toggleRenameVisibility(collectionId, setRename)
                         }
                     })
                     .catch((error) => {
@@ -278,19 +217,19 @@ const DirectoryMap: React.FC = () => {
                                     return single
                                 })
                             )
-                            toggleRenameVisibility(collectionId)
-                            toggleMenuVisibility(collectionId)
+                            toggleRenameVisibility(collectionId, setRename)
+                            toggleMenuVisibility(collectionId, setMenuVisibility)
                         }
                     })
                     .catch((error) => {
                         console.error('Failed to rename item:', error)
                     })
             }
-            toggleMenuVisibility(collectionId)
+            toggleMenuVisibility(collectionId, setMenuVisibility)
         }
     }
 
-    const renderItem = useCallback(
+const renderItem = useCallback(
         (item: CollectionType | PageType) => {
             if (item.type === 'COLLECTION') {
                 const isChildrenVisible = visibleChildren.has(item.id)
@@ -322,18 +261,17 @@ const DirectoryMap: React.FC = () => {
                                 className='flex flex-row justify-between items-center truncate'
                                 style={{ fontWeight: 'bold', cursor: 'pointer' }}
                                 onClick={() => {
-                                    toggleChildrenVisibility(item.id)
+                                    toggleChildrenVisibility(item.id, setLoading, isSelect, setSelected, setVisibleChildren)
                                     {
-                                        isMenuVisible && toggleMenuVisibility(item.id)
+                                        isMenuVisible && toggleMenuVisibility(item.id, setMenuVisibility)
                                     }
                                     {
-                                        isInputVisible && toggleInputVisibility(item.id, item.type)
+                                        isInputVisible && toggleInputVisibility(item.id, item.type, setMenuVisibility, setInputVisible, setType)
                                     }
+                                    callApi(item.id)
                                 }}
                             >
-                                <div className='flex gap-2 items-center' onClick={() => {
-                                    callApi(item.id)
-                                }}>
+                                <div className='flex gap-2 items-center'>
                                     {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
                                     {item.name}
                                 </div>
@@ -341,21 +279,22 @@ const DirectoryMap: React.FC = () => {
                                     className='menu flex flex-row items-center justify-center gap-4'
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        toggleMenuVisibility(item.id)
+                                        toggleMenuVisibility(item.id, setMenuVisibility)
                                     }}
                                 >
                                     {isLoading && <span className='border-2 animate-spin border-x-slate-500 border-y-slate-400 rounded-full w-4 h-4' ></span>}
                                     {!isMenuVisible ? <ImMenu /> : <ImCross />}
                                 </div>
                                 {isMenuVisible && (
-                                    <div className='menu-content ml-20 mt-40 absolute bg-white text-center text-[12px] p-2 z-50 rounded-2xl' onClick={(e)=>{
+                                    <div className='menu-content ml-20 mt-48 absolute bg-white text-center text-[12px] p-2 z-50 rounded-2xl' onClick={(e) => {
                                         e.stopPropagation()
-                                        toggleMenuVisibility(item.id)}}>
+                                        toggleMenuVisibility(item.id, setMenuVisibility)
+                                    }}>
                                         <div
                                             className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                toggleInputVisibility(item.id, 'COLLECTION')
+                                                toggleInputVisibility(item.id, 'COLLECTION', setMenuVisibility, setInputVisible, setType)
                                             }}
                                         >
                                             Add Collection
@@ -364,7 +303,7 @@ const DirectoryMap: React.FC = () => {
                                             className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                toggleInputVisibility(item.id, 'PAGE')
+                                                toggleInputVisibility(item.id, 'PAGE', setMenuVisibility, setInputVisible, setType)
                                             }}
                                         >
                                             Add Page
@@ -373,7 +312,8 @@ const DirectoryMap: React.FC = () => {
                                             className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                toggleRenameVisibility(item.id)}}
+                                                toggleRenameVisibility(item.id, setRename)
+                                            }}
                                         >
                                             Rename
                                         </div>
@@ -381,8 +321,9 @@ const DirectoryMap: React.FC = () => {
                                             className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                toggleSelect()
-                                            toggleMenuVisibility(item.id)}}
+                                                toggleSelect(setIsSelect)
+                                                toggleMenuVisibility(item.id, setMenuVisibility)
+                                            }}
                                         >
                                             Select
                                         </div>
@@ -390,7 +331,8 @@ const DirectoryMap: React.FC = () => {
                                             className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500'
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleDelte(item.id, item.type)}}
+                                                handleDelte(item.id, item.type)
+                                            }}
                                         >
                                             Delete
                                         </div>
@@ -428,58 +370,64 @@ const DirectoryMap: React.FC = () => {
                                 }}
                             />
                         ) : (
-                            <div className='flex flex-row justify-between p-2 cursor-pointer rounded-md items-center bg-slate-400 hover:bg-slate-300 mt-2 shadow-sm shadow-black border-2 border-black'
-                                style={{
-                                    backgroundColor: item.id === pageId ? 'rgb(203 213 225)' : "rgb(148 163 184)"
-                                }}>
-                                <div key={item.id} className=' flex flex-row gap-2 items-center' >
-                                    {item.id === pageId ? <FaRegNoteSticky /> : <FaNoteSticky />}
-                                    <Link to={"/page/" + item.id}>
+                            <Link to={"/app/page/" + item.id}>
+                                <div className='flex flex-row justify-between p-2 cursor-pointer rounded-md items-center bg-slate-400 hover:bg-slate-300 mt-2 shadow-sm shadow-black border-2 border-black'
+                                    style={{
+                                        backgroundColor: item.id === pageId ? 'rgb(203 213 225)' : "rgb(148 163 184)"
+                                    }}>
+                                    <div key={item.id} className=' flex flex-row gap-2 items-center' >
+                                        {item.id === pageId ? <FaRegNoteSticky /> : <FaNoteSticky />}
                                         <h3>{item.name}</h3>
-                                    </Link>
-                                </div>
-                                <div
-                                    className='menu'
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        toggleMenuVisibility(item.id)
-                                    }}
-                                >
-                                    {!isMenuVisible ? <ImMenu /> : <ImCross />}
-                                </div>
-                                {isMenuVisible && (
-                                    <div className='menu-content ml-20 mt-24 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
-                                        <div
-                                            className='menu-item w-20 hover:bg-sky-200 p-2 cursor-pointer rounded-xl hover:text-sky-500'
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                toggleRenameVisibility(item.id)}}
-                                        >
-                                            Rename
-                                        </div>
-                                        <div
-                                            className='menu-item w-20 hover:bg-red-200 p-2 cursor-pointer rounded-xl hover:text-red-500'
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleDelte(item.id, item.type)}}
-                                        >
-                                            Delete
-                                        </div>
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                    <div
+                                        className='menu'
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            toggleMenuVisibility(item.id, setMenuVisibility)
+                                        }}
+                                    >
+                                        {!isMenuVisible ? <ImMenu /> : <ImCross />}
+                                    </div>
+                                    {isMenuVisible && (
+                                        <div className='menu-content ml-20 mt-24 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
+                                            <div
+                                                className='menu-item w-20 hover:bg-sky-200 p-2 cursor-pointer rounded-xl hover:text-sky-500'
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    toggleRenameVisibility(item.id, setRename)
+                                                }}
+                                            >
+                                                Rename
+                                            </div>
+                                            <div
+                                                className='menu-item w-20 hover:bg-red-200 p-2 cursor-pointer rounded-xl hover:text-red-500'
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    handleDelte(item.id, item.type)
+                                                }}
+                                            >
+                                                Delete
+                                            </div>
+                                        </div>
+                                    )}
+                                </div >
+                            </Link>
+                        )
+                        }
                     </>
                 )
             }
             return null
         },
-        [visibleChildren, menuVisibility, rename, type, toggleChildrenVisibility, toggleMenuVisibility, inputVisible, toggleInputVisibility, loading, selected]
+        [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected]
     )
 
     return <div className='relative overflow-y-auto p-1 h-[625px] hide-scroll'>
         {isSelect && <div className="select text-2xl ml-44 mb-4 flex flex-row items-end justify-center bg-green-500 w-8 shadow-sm shadow-green-300 rounded-lg"
-            onClick={() => toggleSelect()}>
+            onClick={() => toggleSelect(setIsSelect)}>
             <TiTick />
         </div>}
         {selected.length !== 0 && !isSelect &&

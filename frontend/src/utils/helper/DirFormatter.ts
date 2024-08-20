@@ -21,15 +21,6 @@ export interface PageType {
   type: 'PAGE'
 }
 
-export interface DirectoryMapperProps {
-  data: ResultArr
-  setinputColl: React.Dispatch<React.SetStateAction<boolean>>
-  takeinputColl: boolean
-}
-export interface DirCollectionProps extends PropsWithChildren {
-  single: CollectionType | PageType
-}
-
 export type ResultArr = (CollectionType | PageType)[]
 
 class Directory {

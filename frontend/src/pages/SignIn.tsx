@@ -23,7 +23,7 @@ const SignIn = () => {
                     <GoogleLogin
                       onSuccess={(credentialResponse) => {
                         console.log(credentialResponse)
-                        document.cookie = `token=${credentialResponse.credential}`
+                        document.cookie = `token=${credentialResponse.credential}; max-age=3600`
                         navigate('/app')
                       }}
                       onError={() => {

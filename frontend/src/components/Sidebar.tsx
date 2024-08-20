@@ -1,11 +1,9 @@
-import React, { createContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useRef, useState } from 'react'
 import DirectoryMap from './DirectoryMapper'
-import Directory, { dataType, ResultArr } from '../utils/helper/DirFormatter'
 import { FaPlus } from "react-icons/fa";
 import COLLECTION_API from '../utils/api/collection'
 import { ImMenu, ImCross } from 'react-icons/im'
 import { Toast } from '../utils/alert/sweetAlert2';
-// import data from './data'
 
 const Sidebar = () => {
   const [takeinputColl, setinputColl] = useState(false)
@@ -37,8 +35,8 @@ const Sidebar = () => {
       <div className={`sidebar h-screen bg-slate-100 w-1/5 p-2 ${menu?"ml-0":"ml-[-250px]"}`} style={{
         transition: 'all 0.5s'
       }} >
-      <div className="flex justify-end" onClick={()=>setMenu(prev=>!prev)} >
-      {menu ? <ImCross/> : <ImMenu/>}
+      <div className="flex justify-end">
+      {menu ? <ImCross onClick={()=>setMenu(false)} /> : <ImMenu onClick={()=>setMenu(true)} />}
       </div>
       <div className="content" style={{
         display: menu ? 'block' : 'none'
@@ -51,7 +49,7 @@ const Sidebar = () => {
               className='bg-slate-300 rounded-lg text-2xl hover:bg-slate-400 cursor-pointer py-1 w-full mb-2'
             />
           </div>
-          <hr className='border-2 border-black mb-2' />
+          <hr className='border-1 border-black mb-2' />
           {takeinputColl && (
             <input
               ref={inputRef}
