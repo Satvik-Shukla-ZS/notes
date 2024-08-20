@@ -248,7 +248,7 @@ const renderItem = useCallback(
                 if(pageId === -1){
                     isChildrenVisible = visibleChildren.has(item.id)
                 } else {
-                    isChildrenVisible= item.children?.some((child) => prevData.has(child.id)) || true
+                    isChildrenVisible= item.children?.some((child) => prevData.has(child.id))? true : false
                 }
                 const isMenuVisible = menuVisibility[item.id] || false
                 const isInputVisible = inputVisible[item.id] || false
@@ -279,6 +279,7 @@ const renderItem = useCallback(
                                 style={{ fontWeight: 'bold', cursor: 'pointer' }}
                                 onClick={() => {
                                     toggleChildrenVisibility(item.id, setLoading, isSelect, setSelected, setVisibleChildren)
+                                    localStorage.setItem("data", JSON.stringify(data))
                                     {
                                         isMenuVisible && toggleMenuVisibility(item.id, setMenuVisibility)
                                     }
