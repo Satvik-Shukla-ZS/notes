@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 import { toggleSelect, toggleMenuVisibility, toggleInputVisibility, toggleChildrenVisibility, toggleRenameVisibility } from '../utils/helper/ToggleFunctions'
 
 const DirectoryMap: React.FC = () => {
-    const [data, setData] = useState<ResultArr>([])
+    const [data, setData] = useState<ResultArr>(localStorage.getItem("data") ? JSON.parse(localStorage.getItem("data") as string) : [])
     const [structuredData, setStructuredData] = useState<ResultArr>([])
     const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
     const [rename, setRename] = useState<Record<number, boolean>>({})
@@ -33,10 +33,21 @@ const DirectoryMap: React.FC = () => {
     const pageId = Number(useParams().id ?? -1);
 
     useEffect(() => {
-        COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
-            setData(res.data)
-        })
-    }, [])
+        if(pageId === -1 ){
+            COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
+                setData(res.data)
+            })
+            localStorage.removeItem("data")
+        } else {
+            console.log("PageId", pageId)
+        }
+    }, [pageId])
+
+    useEffect(()=>{
+        if(localStorage.getItem("data") && pageId !== -1){
+            setData(JSON.parse(localStorage.getItem("data") as string))
+        }
+    },[localStorage.getItem("data")])
 
     useEffect(() => {
         if (data.length > 0) {
@@ -232,7 +243,13 @@ const DirectoryMap: React.FC = () => {
 const renderItem = useCallback(
         (item: CollectionType | PageType) => {
             if (item.type === 'COLLECTION') {
-                const isChildrenVisible = visibleChildren.has(item.id)
+                const prevData = new Set<number>(JSON.parse(localStorage.getItem("data") as string)?.map((item: any) => item.id) || []);
+                let isChildrenVisible;
+                if(pageId === -1){
+                    isChildrenVisible = visibleChildren.has(item.id)
+                } else {
+                    isChildrenVisible= item.children?.some((child) => prevData.has(child.id)) || true
+                }
                 const isMenuVisible = menuVisibility[item.id] || false
                 const isInputVisible = inputVisible[item.id] || false
                 const isRenameVisible = rename[item.id] || false
@@ -370,7 +387,9 @@ const renderItem = useCallback(
                                 }}
                             />
                         ) : (
-                            <Link to={"/app/page/" + item.id}>
+                            <Link to={"/app/page/" + item.id} onClick={()=>{
+                                localStorage.setItem("data", JSON.stringify(data))
+                            }} >
                                 <div className='flex flex-row justify-between p-2 cursor-pointer rounded-md items-center bg-slate-400 hover:bg-slate-300 mt-2 shadow-sm shadow-black border-2 border-black'
                                     style={{
                                         backgroundColor: item.id === pageId ? 'rgb(203 213 225)' : "rgb(148 163 184)"
@@ -422,7 +441,7 @@ const renderItem = useCallback(
             }
             return null
         },
-        [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected]
+        [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected, data]
     )
 
     return <div className='relative overflow-y-auto p-1 h-[625px] hide-scroll'>

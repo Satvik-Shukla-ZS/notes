@@ -58,3 +58,13 @@ export type RES_RENAME_PAGE = Custom_API_RES<{
   userRef: 1
   parent: number | null
 }>
+
+export interface REQ_MOVE_PAGE {
+  id: number
+  parent: number | null
+}
+
+export type RES_MOVE_PAGE = {
+  code : number,
+  data : string
+}
