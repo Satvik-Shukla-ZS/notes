@@ -1,11 +1,9 @@
-import React, { createContext, useEffect, useRef, useState } from 'react'
+import React, { createContext, useRef, useState } from 'react'
 import DirectoryMap from './DirectoryMapper'
-import Directory, { dataType, ResultArr } from '../utils/helper/DirFormatter'
 import { FaPlus } from "react-icons/fa";
 import COLLECTION_API from '../utils/api/collection'
 import { ImMenu, ImCross } from 'react-icons/im'
 import { Toast } from '../utils/alert/sweetAlert2';
-// import data from './data'
 
 const Sidebar = () => {
   const [takeinputColl, setinputColl] = useState(false)
