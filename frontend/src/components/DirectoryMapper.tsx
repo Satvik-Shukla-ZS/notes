@@ -3,23 +3,17 @@ import Directory from '../utils/helper/DirFormatter'
 import { dataType, ResultArr, CollectionType, PageType } from '../utils/helper/DirFormatter'
 import { FaFolder, FaFolderOpen } from 'react-icons/fa'
 import { FaNoteSticky } from 'react-icons/fa6'
-import { FaRegNoteSticky } from 'react-icons/fa6'
-import { FaTrash } from 'react-icons/fa'
-import { FaXmark } from 'react-icons/fa6'
-import { TiTick } from 'react-icons/ti'
+import { FaRegNoteSticky } from "react-icons/fa6";
+import { FaTrash } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
+import { TiTick } from "react-icons/ti";
 import { ImMenu, ImCross } from 'react-icons/im'
 import COLLECTION_API from '../utils/api/collection'
 import PAGE_API from '../utils/api/page'
 import { Toast } from '../utils/alert/sweetAlert2'
 import { Link, useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import {
-  toggleSelect,
-  toggleMenuVisibility,
-  toggleInputVisibility,
-  toggleChildrenVisibility,
-  toggleRenameVisibility
-} from '../utils/helper/ToggleFunctions'
+import { toggleSelect, toggleMenuVisibility, toggleInputVisibility, toggleChildrenVisibility, toggleRenameVisibility } from '../utils/helper/ToggleFunctions'
 
 const DirectoryMap: React.FC = () => {
     const [data, setData] = useState<ResultArr>(localStorage.getItem("data") ? JSON.parse(localStorage.getItem("data") as string) : [])
@@ -36,8 +30,7 @@ const DirectoryMap: React.FC = () => {
     const [selected, setSelected] = useState<Array<number>>(new Array())
     const navigate = useNavigate()
 
-  const pageId = Number(useParams().id ?? -1)
-
+    const pageId = Number(useParams().id ?? -1);
 
     useEffect(() => {
         if(pageId === -1 ){
@@ -56,197 +49,196 @@ const DirectoryMap: React.FC = () => {
         }
     },[localStorage.getItem("data")])
 
-  useEffect(() => {
-    if (data.length > 0) {
-      const directory = new Directory(data as dataType)
-      const result = directory.createObject()
-      setStructuredData(result)
-    }
-  }, [data])
-
-  const callApi = async (collectionId: number) => {
-    try {
-      const res = await COLLECTION_API.Get_All_By_Parent_ID({ parent: collectionId })
-      const newItems = res.data
-      console.log(newItems)
-      setData((prevData) => {
-        const dataSet = new Set(prevData.map((item) => item.id))
-        const itemsToAdd: ResultArr = []
-        const itemsToRemove: ResultArr = []
-
-        newItems.forEach((item) => {
-          if (dataSet.has(item.id)) {
-            itemsToRemove.push(item)
-          } else {
-            itemsToAdd.push(item)
-          }
-        })
-        const updatedData = prevData.filter((item) => !itemsToRemove.includes(item)).concat(itemsToAdd)
-
-        return updatedData
-      })
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    }
-  }
-
-  const handleKeyDown = useCallback(
-    (parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && input.current[parentId] && input.current[parentId]?.value === '') {
-        toggleInputVisibility(parentId, type, setMenuVisibility, setInputVisible, setType)
-      } else if (e.key === 'Enter' && input.current[parentId]) {
-        const inputValue = input.current[parentId]?.value.trim()
-        if (inputValue && type === 'COLLECTION') {
-          COLLECTION_API.ADD({ name: inputValue, parent: parentId })
-            .then((res) => {
-              const newItem: CollectionType = {
-                ...res.data,
-                type: 'COLLECTION'
-              }
-              setData((prevData) => [...prevData, newItem])
-            })
-            .catch((error) => {
-              console.error('Failed to add item:', error)
-            })
-          setInputVisible((prev) => ({
-            ...prev,
-            [parentId]: false
-          }))
-          Toast.fire({
-            icon: 'success',
-            title: 'Collection added successfully'
-          })
-        } else if (inputValue && type === 'PAGE') {
-          PAGE_API.ADD_PAGE({ name: inputValue, collectionId: parentId })
-            .then((res) => {
-              const newItem: PageType = {
-                ...res.data,
-                type: 'PAGE'
-              }
-              setData((prevData) => [...prevData, newItem])
-            })
-            .catch((error) => {
-              console.error('Failed to add item:', error)
-            })
-          setInputVisible((prev) => ({
-            ...prev,
-            [parentId]: false
-          }))
-          Toast.fire({
-            icon: 'success',
-            title: 'Page added successfully'
-          })
+    useEffect(() => {
+        if (data.length > 0) {
+            const directory = new Directory(data as dataType)
+            const result = directory.createObject()
+            setStructuredData(result)
         }
-      }
-    },
-    [input, type]
-  )
+    }, [data])
 
-  const handleGroupDelete = async () => {
-    for (const ele of selected) {
-      try {
-        await COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: ele })
-      } catch (error) {
-        console.error(`Failed to delete collection ${ele}:`, error)
-      }
+    const callApi = async (collectionId: number) => {
+        try {
+            const res = await COLLECTION_API.Get_All_By_Parent_ID({ parent: collectionId })
+            const newItems = res.data
+            console.log(newItems)
+            setData((prevData) => {
+                const dataSet = new Set(prevData.map((item) => item.id))
+                const itemsToAdd: ResultArr = []
+                const itemsToRemove: ResultArr = []
 
-      try {
-        await PAGE_API.DELETE_BY_PAGE_ID({ id: ele })
-      } catch (error) {
-        console.error(`Failed to delete page ${ele}:`, error)
-      }
-      setData((prev) => prev.filter((single) => single.id !== ele))
-    }
-    setSelected([])
-    Toast.fire({
-      icon: 'success',
-      title: 'Selected items deleted successfully'
-    })
-  }
-
-  const handleDelte = (collectionId: number, type: string) => {
-    if (type === 'COLLECTION') {
-      COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: collectionId })
-        .then((res) => {
-          console.log(res)
-          setData((prev) => prev.filter((single) => single.id !== collectionId))
-          Toast.fire({
-            icon: 'success',
-            iconColor: 'red',
-            title: 'Collection deleted'
-          })
-        })
-        .catch((error) => {
-          console.error('Failed to delete item:', error)
-        })
-    } else if (type === 'PAGE') {
-      PAGE_API.DELETE_BY_PAGE_ID({ id: collectionId })
-        .then(() => {
-          setTimeout(() => {
-            setData((prev) => prev.filter((single) => single.id !== collectionId))
-          }, 200)
-          Toast.fire({
-            icon: 'success',
-            iconColor: 'red',
-            title: 'Page deleted'
-          })
-        })
-        .catch((error) => {
-          console.error('Failed to delete item:', error)
-        })
-      navigate('/app')
-    }
-  }
-
-  const handleRename = (e: React.KeyboardEvent<HTMLInputElement>, collectionId: number, type: string) => {
-    if (e.key === 'Enter' && renameRef.current && renameRef.current.value === '') {
-      toggleRenameVisibility(collectionId, setRename)
-    }
-    if (e.key === 'Enter' && renameRef.current) {
-      const inputValue = renameRef.current.value.trim()
-      if (inputValue && type === 'COLLECTION') {
-        COLLECTION_API.RENAME_COLLECTION({ name: inputValue, id: collectionId })
-          .then((res) => {
-            if (res.code === 200) {
-              setData((prev) =>
-                prev.map((single) => {
-                  if (single.id === collectionId && single.type === 'COLLECTION') {
-                    return { ...single, name: inputValue }
-                  }
-                  return single
+                newItems.forEach((item) => {
+                    if (dataSet.has(item.id)) {
+                        itemsToRemove.push(item)
+                    } else {
+                        itemsToAdd.push(item)
+                    }
                 })
-              )
+                const updatedData = prevData.filter((item) => !itemsToRemove.includes(item)).concat(itemsToAdd)
 
-              toggleRenameVisibility(collectionId, setRename)
-            }
-          })
-          .catch((error) => {
-            console.error('Failed to rename item:', error)
-          })
-      } else if (inputValue && type === 'PAGE') {
-        PAGE_API.RENAME_PAGE({ name: inputValue, id: collectionId })
-          .then((res) => {
-            if (res.code === 200) {
-              setData((prev) =>
-                prev.map((single) => {
-                  if (single.id === collectionId && single.type === 'PAGE') {
-                    return { ...single, name: inputValue }
-                  }
-                  return single
-                })
-              )
-              toggleRenameVisibility(collectionId, setRename)
-              toggleMenuVisibility(collectionId, setMenuVisibility)
-            }
-          })
-          .catch((error) => {
-            console.error('Failed to rename item:', error)
-          })
-      }
-      toggleMenuVisibility(collectionId, setMenuVisibility)
+                return updatedData
+            })
+        } catch (error) {
+            console.error('Error fetching data:', error)
+        }
     }
-  }
 
+    const handleKeyDown = useCallback(
+        (parentId: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Enter' && input.current[parentId] && input.current[parentId]?.value === '') {
+                toggleInputVisibility(parentId, type, setMenuVisibility, setInputVisible, setType)
+            } else if (e.key === 'Enter' && input.current[parentId]) {
+                const inputValue = input.current[parentId]?.value.trim()
+                if (inputValue && type === 'COLLECTION') {
+                    COLLECTION_API.ADD({ name: inputValue, parent: parentId })
+                        .then((res) => {
+                            const newItem: CollectionType = {
+                                ...res.data,
+                                type: 'COLLECTION'
+                            }
+                            setData((prevData) => [...prevData, newItem])
+                        })
+                        .catch((error) => {
+                            console.error('Failed to add item:', error)
+                        })
+                    setInputVisible((prev) => ({
+                        ...prev,
+                        [parentId]: false
+                    }))
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Collection added successfully'
+                    })
+                } else if (inputValue && type === 'PAGE') {
+                    PAGE_API.ADD_PAGE({ name: inputValue, collectionId: parentId })
+                        .then((res) => {
+                            const newItem: PageType = {
+                                ...res.data,
+                                type: 'PAGE'
+                            }
+                            setData((prevData) => [...prevData, newItem])
+                        })
+                        .catch((error) => {
+                            console.error('Failed to add item:', error)
+                        })
+                    setInputVisible((prev) => ({
+                        ...prev,
+                        [parentId]: false
+                    }))
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Page added successfully'
+                    })
+                }
+            }
+        },
+        [input, type]
+    )
+
+    const handleGroupDelete = async () => {
+        for (const ele of selected) {
+            try {
+                await COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: ele });
+            } catch (error) {
+                console.error(`Failed to delete collection ${ele}:`, error);
+            }
+
+            try {
+                await PAGE_API.DELETE_BY_PAGE_ID({ id: ele });
+            } catch (error) {
+                console.error(`Failed to delete page ${ele}:`, error);
+            }
+            setData((prev) => prev.filter((single) => single.id !== ele));
+        }
+        setSelected([]);
+        Toast.fire({
+            icon: 'success',
+            title: 'Selected items deleted successfully'
+        });
+    };
+
+    const handleDelte = (collectionId: number, type: string) => {
+        if (type === 'COLLECTION') {
+            COLLECTION_API.DELETE_COLLECTION_BY_ID({ id: collectionId })
+                .then((res) => {
+                    console.log(res)
+                    setData((prev) => prev.filter((single) => single.id !== collectionId))
+                    Toast.fire({
+                        icon: 'success',
+                        iconColor: 'red',
+                        title: 'Collection deleted'
+                    });
+                })
+                .catch((error) => {
+                    console.error('Failed to delete item:', error)
+                })
+        } else if (type === 'PAGE') {
+            PAGE_API.DELETE_BY_PAGE_ID({ id: collectionId })
+                .then(() => {
+                    setTimeout(() => {
+                        setData((prev) => prev.filter((single) => single.id !== collectionId))
+                    }, 200)
+                    Toast.fire({
+                        icon: 'success',
+                        iconColor: 'red',
+                        title: 'Page deleted'
+                    });
+                })
+                .catch((error) => {
+                    console.error('Failed to delete item:', error)
+                })
+                navigate('/app')
+        }
+    }
+
+    const handleRename = (e: React.KeyboardEvent<HTMLInputElement>, collectionId: number, type: string) => {
+        if (e.key === 'Enter' && renameRef.current && renameRef.current.value === '') {
+            toggleRenameVisibility(collectionId, setRename)
+        }
+        if (e.key === 'Enter' && renameRef.current) {
+            const inputValue = renameRef.current.value.trim()
+            if (inputValue && type === 'COLLECTION') {
+                COLLECTION_API.RENAME_COLLECTION({ name: inputValue, id: collectionId })
+                    .then((res) => {
+                        if (res.code === 200) {
+                            setData((prev) =>
+                                prev.map((single) => {
+                                    if (single.id === collectionId && single.type === 'COLLECTION') {
+                                        return { ...single, name: inputValue }
+                                    }
+                                    return single
+                                })
+                            )
+
+                            toggleRenameVisibility(collectionId, setRename)
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Failed to rename item:', error)
+                    })
+            } else if (inputValue && type === 'PAGE') {
+                PAGE_API.RENAME_PAGE({ name: inputValue, id: collectionId })
+                    .then((res) => {
+                        if (res.code === 200) {
+                            setData((prev) =>
+                                prev.map((single) => {
+                                    if (single.id === collectionId && single.type === 'PAGE') {
+                                        return { ...single, name: inputValue }
+                                    }
+                                    return single
+                                })
+                            )
+                            toggleRenameVisibility(collectionId, setRename)
+                            toggleMenuVisibility(collectionId, setMenuVisibility)
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Failed to rename item:', error)
+                    })
+            }
+            toggleMenuVisibility(collectionId, setMenuVisibility)
+        }
+    }
 
 const renderItem = useCallback(
         (item: CollectionType | PageType) => {
@@ -263,72 +255,121 @@ const renderItem = useCallback(
                 const isRenameVisible = rename[item.id] || false
                 const isLoading = loading[item.id] || false
 
-        return (
-          <div
-            key={item.id}
-            className='relative py-1 px-2 ml-1 my-1 bg-slate-100 rounded-md  hover:bg-slate-400 '
-            style={{
-              // backgroundColor: selected.includes(item.id) ? 'rgb(203 213 225)' : ''
-              backgroundColor: isChildrenVisible ? 'rgb(203 213 225)' : ''
-            }}
-          >
-            {isRenameVisible ? (
-              <input
-                type='text'
-                ref={renameRef}
-                className='w-full rounded-md border-none'
-                placeholder='Enter text to rename'
-                onKeyDown={(e) => {
-                  handleRename(e, item.id, item.type)
-                }}
-              />
-            ) : (
-              <div
-                className='flex flex-row justify-between items-center truncate'
-                style={{ fontWeight: 'bold', cursor: 'pointer' }}
-                onClick={() => {
-                  toggleChildrenVisibility(item.id, setLoading, isSelect, setSelected, setVisibleChildren)
-                  {
-                    isMenuVisible && toggleMenuVisibility(item.id, setMenuVisibility)
-                  }
-                  {
-                    isInputVisible && toggleInputVisibility(item.id, item.type, setMenuVisibility, setInputVisible, setType)
-                  }
-                  callApi(item.id)
-                }}
-              >
-                <div className='flex gap-2 items-center'>
-                  {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
-                  {item.name}
-                </div>
-                <div
-                  className='menu flex flex-row items-center justify-center gap-4'
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleMenuVisibility(item.id, setMenuVisibility)
-                  }}
-                >
-                  {isLoading && <span className='border-2 animate-spin border-x-slate-500 border-y-slate-400 rounded-full w-4 h-4'></span>}
-                  {!isMenuVisible ? <ImMenu /> : <ImCross />}
-                </div>
-                {isMenuVisible && (
-                  <div
-                    className='menu-content ml-20 mt-48 absolute bg-white text-center text-[12px] p-2 z-50 rounded-2xl'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      toggleMenuVisibility(item.id, setMenuVisibility)
-                    }}
-                  >
+                return (
                     <div
-                      className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleInputVisibility(item.id, 'COLLECTION', setMenuVisibility, setInputVisible, setType)
-                      }}
+                        key={item.id}
+                        className='relative p-2 my-2 bg-slate-100 rounded-md  hover:bg-slate-300 shadow-sm shadow-black'
+                        style={{
+                            backgroundColor: selected.includes(item.id) ? 'rgb(203 213 225)' : ""
+                        }}
                     >
-                      Add Collection
+                        {isRenameVisible ? (
+                            <input
+                                type='text'
+                                ref={renameRef}
+                                className='w-full rounded-md border-none'
+                                placeholder='Enter text to rename'
+                                onKeyDown={(e) => {
+                                    handleRename(e, item.id, item.type)
+                                }}
+                            />
+                        ) : (
+                            <div
+                                className='flex flex-row justify-between items-center truncate'
+                                style={{ fontWeight: 'bold', cursor: 'pointer' }}
+                                onClick={() => {
+                                    toggleChildrenVisibility(item.id, setLoading, isSelect, setSelected, setVisibleChildren)
+                                    {
+                                        isMenuVisible && toggleMenuVisibility(item.id, setMenuVisibility)
+                                    }
+                                    {
+                                        isInputVisible && toggleInputVisibility(item.id, item.type, setMenuVisibility, setInputVisible, setType)
+                                    }
+                                    callApi(item.id)
+                                }}
+                            >
+                                <div className='flex gap-2 items-center'>
+                                    {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
+                                    {item.name}
+                                </div>
+                                <div
+                                    className='menu flex flex-row items-center justify-center gap-4'
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        toggleMenuVisibility(item.id, setMenuVisibility)
+                                    }}
+                                >
+                                    {isLoading && <span className='border-2 animate-spin border-x-slate-500 border-y-slate-400 rounded-full w-4 h-4' ></span>}
+                                    {!isMenuVisible ? <ImMenu /> : <ImCross />}
+                                </div>
+                                {isMenuVisible && (
+                                    <div className='menu-content ml-20 mt-48 absolute bg-white text-center text-[12px] p-2 z-50 rounded-2xl' onClick={(e) => {
+                                        e.stopPropagation()
+                                        toggleMenuVisibility(item.id, setMenuVisibility)
+                                    }}>
+                                        <div
+                                            className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                toggleInputVisibility(item.id, 'COLLECTION', setMenuVisibility, setInputVisible, setType)
+                                            }}
+                                        >
+                                            Add Collection
+                                        </div>
+                                        <div
+                                            className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                toggleInputVisibility(item.id, 'PAGE', setMenuVisibility, setInputVisible, setType)
+                                            }}
+                                        >
+                                            Add Page
+                                        </div>
+                                        <div
+                                            className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                toggleRenameVisibility(item.id, setRename)
+                                            }}
+                                        >
+                                            Rename
+                                        </div>
+                                        <div
+                                            className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                toggleSelect(setIsSelect)
+                                                toggleMenuVisibility(item.id, setMenuVisibility)
+                                            }}
+                                        >
+                                            Select
+                                        </div>
+                                        <div
+                                            className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500'
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleDelte(item.id, item.type)
+                                            }}
+                                        >
+                                            Delete
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {isChildrenVisible && item.children && item.children.map(renderItem)}
+                        {isInputVisible && (
+                            <input
+                                type='text'
+                                ref={(el) => {
+                                    if (el) input.current[item.id] = el
+                                }}
+                                onKeyDown={handleKeyDown(item.id)}
+                                className='border-2 border-black p-2 rounded-lg w-full mt-2'
+                                placeholder='Enter the name'
+                            />
+                        )}
                     </div>
-
                 )
             } else if (item.type === 'PAGE') {
                 const isMenuVisible = menuVisibility[item.id] || false
@@ -403,30 +444,19 @@ const renderItem = useCallback(
         [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected, data]
     )
 
-  return (
-    <div className='relative overflow-y-auto p-1 h-[625px] hide-scroll'>
-      {isSelect && (
-        <div
-          className='select text-2xl ml-44 mb-4 flex flex-row items-end justify-center bg-green-500 w-8 shadow-sm shadow-green-300 rounded-lg'
-          onClick={() => toggleSelect(setIsSelect)}
-        >
-          <TiTick />
-        </div>
-      )}
-      {selected.length !== 0 && !isSelect && (
-        <div className='flex flex-row ml-36 gap-2 mb-4 items-end justify-center '>
-          <FaTrash className='bg-red-500 p-1 text-xl w-8 shadow-sm shadow-red-300 rounded-lg' onClick={() => handleGroupDelete()} />
-          <FaXmark
-            className='bg-red-500 w-8 text-xl shadow-sm shadow-red-300 rounded-lg'
-            onClick={() => {
-              setSelected([])
-            }}
-          />
-        </div>
-      )}
-      {structuredData.map(renderItem)}
+    return <div className='relative overflow-y-auto p-1 h-[625px] hide-scroll'>
+        {isSelect && <div className="select text-2xl ml-44 mb-4 flex flex-row items-end justify-center bg-green-500 w-8 shadow-sm shadow-green-300 rounded-lg"
+            onClick={() => toggleSelect(setIsSelect)}>
+            <TiTick />
+        </div>}
+        {selected.length !== 0 && !isSelect &&
+            <div className="flex flex-row ml-36 gap-2 mb-4 items-end justify-center ">
+                <FaTrash className='bg-red-500 p-1 text-xl w-8 shadow-sm shadow-red-300 rounded-lg' onClick={() => handleGroupDelete()} />
+                <FaXmark className='bg-red-500 w-8 text-xl shadow-sm shadow-red-300 rounded-lg' onClick={() => { setSelected([]) }} />
+            </div>
+        }
+        {structuredData.map(renderItem)}
     </div>
-  )
 }
 
 export default DirectoryMap
