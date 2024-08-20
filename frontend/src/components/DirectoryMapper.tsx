@@ -258,9 +258,10 @@ const renderItem = useCallback(
                 return (
                     <div
                         key={item.id}
-                        className='relative p-2 my-2 bg-slate-100 rounded-md  hover:bg-slate-300 shadow-sm shadow-black'
+                        className='relative py-1 px-2 ml-1 my-1 bg-slate-100 rounded-md  hover:bg-slate-400'
                         style={{
-                            backgroundColor: selected.includes(item.id) ? 'rgb(203 213 225)' : ""
+                            // backgroundColor: selected.includes(item.id) ? 'rgb(203 213 225)' : ""
+                            backgroundColor: isChildrenVisible ? 'rgb(203 213 225)' : ""
                         }}
                     >
                         {isRenameVisible ? (
@@ -391,10 +392,7 @@ const renderItem = useCallback(
                             <Link to={"/app/page/" + item.id} onClick={()=>{
                                 localStorage.setItem("data", JSON.stringify(data))
                             }} >
-                                <div className='flex flex-row justify-between p-2 cursor-pointer rounded-md items-center bg-slate-400 hover:bg-slate-300 mt-2 shadow-sm shadow-black border-2 border-black'
-                                    style={{
-                                        backgroundColor: item.id === pageId ? 'rgb(203 213 225)' : "rgb(148 163 184)"
-                                    }}>
+                                <div className='flex flex-row justify-between px-2 py-1 cursor-pointer rounded-md items-center hover:bg-slate-400 mt-1'>
                                     <div key={item.id} className=' flex flex-row gap-2 items-center' >
                                         {item.id === pageId ? <FaRegNoteSticky /> : <FaNoteSticky />}
                                         <h3>{item.name}</h3>
