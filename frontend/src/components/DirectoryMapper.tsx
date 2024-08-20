@@ -22,39 +22,27 @@ import {
 } from '../utils/helper/ToggleFunctions'
 
 const DirectoryMap: React.FC = () => {
-    const [data, setData] = useState<ResultArr>(localStorage.getItem("data") ? JSON.parse(localStorage.getItem("data") as string) : [])
-    const [structuredData, setStructuredData] = useState<ResultArr>([])
-    const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
-    const [rename, setRename] = useState<Record<number, boolean>>({})
-    const [type, setType] = useState<string>('')
-    const [visibleChildren, setVisibleChildren] = useState<Set<number>>(new Set())
-    const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({})
-    const input = useRef<Record<number, HTMLInputElement | null>>({})
-    const renameRef = useRef<HTMLInputElement>(null)
-    const [loading, setLoading] = useState<Record<number, boolean>>({})
-    const [isSelect, setIsSelect] = useState<boolean>(false)
-    const [selected, setSelected] = useState<Array<number>>(new Array())
-    const navigate = useNavigate()
+  const [data, setData] = useState<ResultArr>([])
+  const [structuredData, setStructuredData] = useState<ResultArr>([])
+  const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
+  const [rename, setRename] = useState<Record<number, boolean>>({})
+  const [type, setType] = useState<string>('')
+  const [visibleChildren, setVisibleChildren] = useState<Set<number>>(new Set())
+  const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({})
+  const input = useRef<Record<number, HTMLInputElement | null>>({})
+  const renameRef = useRef<HTMLInputElement>(null)
+  const [loading, setLoading] = useState<Record<number, boolean>>({})
+  const [isSelect, setIsSelect] = useState<boolean>(false)
+  const [selected, setSelected] = useState<Array<number>>(new Array())
+  const navigate = useNavigate()
 
   const pageId = Number(useParams().id ?? -1)
 
-
-    useEffect(() => {
-        if(pageId === -1 ){
-            COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
-                setData(res.data)
-            })
-            localStorage.removeItem("data")
-        } else {
-            console.log("PageId", pageId)
-        }
-    }, [pageId])
-
-    useEffect(()=>{
-        if(localStorage.getItem("data") && pageId !== -1){
-            setData(JSON.parse(localStorage.getItem("data") as string))
-        }
-    },[localStorage.getItem("data")])
+  useEffect(() => {
+    COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
+      setData(res.data)
+    })
+  }, [])
 
   useEffect(() => {
     if (data.length > 0) {
@@ -247,21 +235,14 @@ const DirectoryMap: React.FC = () => {
     }
   }
 
-
-const renderItem = useCallback(
-        (item: CollectionType | PageType) => {
-            if (item.type === 'COLLECTION') {
-                const prevData = new Set<number>(JSON.parse(localStorage.getItem("data") as string)?.map((item: any) => item.id) || []);
-                let isChildrenVisible;
-                if(pageId === -1){
-                    isChildrenVisible = visibleChildren.has(item.id)
-                } else {
-                    isChildrenVisible= item.children?.some((child) => prevData.has(child.id)) || true
-                }
-                const isMenuVisible = menuVisibility[item.id] || false
-                const isInputVisible = inputVisible[item.id] || false
-                const isRenameVisible = rename[item.id] || false
-                const isLoading = loading[item.id] || false
+  const renderItem = useCallback(
+    (item: CollectionType | PageType) => {
+      if (item.type === 'COLLECTION') {
+        const isChildrenVisible = visibleChildren.has(item.id)
+        const isMenuVisible = menuVisibility[item.id] || false
+        const isInputVisible = inputVisible[item.id] || false
+        const isRenameVisible = rename[item.id] || false
+        const isLoading = loading[item.id] || false
 
         return (
           <div
@@ -328,80 +309,127 @@ const renderItem = useCallback(
                     >
                       Add Collection
                     </div>
-
-                )
-            } else if (item.type === 'PAGE') {
-                const isMenuVisible = menuVisibility[item.id] || false
-                const isRenameVisible = rename[item.id] || false
-                return (
-                    <>
-                        {isRenameVisible ? (
-                            <input
-                                type='text'
-                                ref={renameRef}
-                                className='border-2 border-black p-2 rounded-lg w-full mt-2'
-                                placeholder='Rename Page'
-                                onKeyDown={(e) => {
-                                    handleRename(e, item.id, item.type)
-                                }}
-                            />
-                        ) : (
-                            <Link to={"/app/page/" + item.id} onClick={()=>{
-                                localStorage.setItem("data", JSON.stringify(data))
-                            }} >
-                                <div className='flex flex-row justify-between p-2 cursor-pointer rounded-md items-center bg-slate-400 hover:bg-slate-300 mt-2 shadow-sm shadow-black border-2 border-black'
-                                    style={{
-                                        backgroundColor: item.id === pageId ? 'rgb(203 213 225)' : "rgb(148 163 184)"
-                                    }}>
-                                    <div key={item.id} className=' flex flex-row gap-2 items-center' >
-                                        {item.id === pageId ? <FaRegNoteSticky /> : <FaNoteSticky />}
-                                        <h3>{item.name}</h3>
-                                    </div>
-                                    <div
-                                        className='menu'
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            e.preventDefault()
-                                            toggleMenuVisibility(item.id, setMenuVisibility)
-                                        }}
-                                    >
-                                        {!isMenuVisible ? <ImMenu /> : <ImCross />}
-                                    </div>
-                                    {isMenuVisible && (
-                                        <div className='menu-content ml-20 mt-24 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
-                                            <div
-                                                className='menu-item w-20 hover:bg-sky-200 p-2 cursor-pointer rounded-xl hover:text-sky-500'
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    toggleRenameVisibility(item.id, setRename)
-                                                }}
-                                            >
-                                                Rename
-                                            </div>
-                                            <div
-                                                className='menu-item w-20 hover:bg-red-200 p-2 cursor-pointer rounded-xl hover:text-red-500'
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    handleDelte(item.id, item.type)
-                                                }}
-                                            >
-                                                Delete
-                                            </div>
-                                        </div>
-                                    )}
-                                </div >
-                            </Link>
-                        )
-                        }
-                    </>
-                )
-            }
-            return null
-        },
-        [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected, data]
-    )
+                    <div
+                      className='menu-item w-28 group hover:bg-green-200 p-2 rounded-xl hover:text-green-500'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleInputVisibility(item.id, 'PAGE', setMenuVisibility, setInputVisible, setType)
+                      }}
+                    >
+                      Add Page
+                    </div>
+                    <div
+                      className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleRenameVisibility(item.id, setRename)
+                      }}
+                    >
+                      Rename
+                    </div>
+                    <div
+                      className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        toggleSelect(setIsSelect)
+                        toggleMenuVisibility(item.id, setMenuVisibility)
+                      }}
+                    >
+                      Select
+                    </div>
+                    <div
+                      className='menu-item w-28 hover:bg-red-200 p-2 rounded-xl hover:text-red-500'
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDelte(item.id, item.type)
+                      }}
+                    >
+                      Delete
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {isChildrenVisible && item.children && item.children.map(renderItem)}
+            {isInputVisible && (
+              <input
+                type='text'
+                ref={(el) => {
+                  if (el) input.current[item.id] = el
+                }}
+                onKeyDown={handleKeyDown(item.id)}
+                className='border-2 border-black p-2 rounded-lg w-full mt-2'
+                placeholder='Enter the name'
+              />
+            )}
+          </div>
+        )
+      } else if (item.type === 'PAGE') {
+        const isMenuVisible = menuVisibility[item.id] || false
+        const isRenameVisible = rename[item.id] || false
+        return (
+          <>
+            {isRenameVisible ? (
+              <input
+                type='text'
+                ref={renameRef}
+                className='border-2 border-black p-2 rounded-lg w-full mt-2'
+                placeholder='Rename Page'
+                onKeyDown={(e) => {
+                  handleRename(e, item.id, item.type)
+                }}
+              />
+            ) : (
+              <Link to={'/app/page/' + item.id}>
+                <div className='flex flex-row justify-between px-2 py-1 cursor-pointer rounded-md items-center hover:bg-slate-400 mt-1'>
+                  <div key={item.id} className=' flex flex-row gap-2 items-center'>
+                    {item.id === pageId ? <FaRegNoteSticky /> : <FaNoteSticky />}
+                    <h3>{item.name}</h3>
+                  </div>
+                  <div
+                    className='menu'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      toggleMenuVisibility(item.id, setMenuVisibility)
+                    }}
+                  >
+                    {!isMenuVisible ? <ImMenu /> : <ImCross />}
+                  </div>
+                  {isMenuVisible && (
+                    <div className='menu-content ml-20 mt-24 absolute bg-white text-center text-[12px] p-2 z-10 rounded-2xl'>
+                      <div
+                        className='menu-item w-20 hover:bg-sky-200 p-2 cursor-pointer rounded-xl hover:text-sky-500'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          toggleRenameVisibility(item.id, setRename)
+                        }}
+                      >
+                        Rename
+                      </div>
+                      <div
+                        className='menu-item w-20 hover:bg-red-200 p-2 cursor-pointer rounded-xl hover:text-red-500'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          handleDelte(item.id, item.type)
+                        }}
+                      >
+                        Delete
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            )}
+          </>
+        )
+      }
+      return null
+    },
+    [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected]
+  )
 
   return (
     <div className='relative overflow-y-auto p-1 h-[625px] hide-scroll'>
