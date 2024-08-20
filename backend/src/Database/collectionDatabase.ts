@@ -1,3 +1,5 @@
+import Database from "./index";
+
 const sqlite3 = require('sqlite3').verbose();
 
 export interface Collection {
@@ -163,24 +165,58 @@ class CollectionDatabase {
                                     console.log("ROWS",rows)
                                 for (const row of rows) {
                                     await deleteNestedCollections(row.id, userId).catch((err) => {
-                                        console.log("ERROR DELETING NESTED COLLECTION:", err);
+                                        console.log("ERROR DELETING NESTED COLLECTION:" ,row , row);
                                         return rejectNested(err);
                                     });
                                 }
 
-                                this.db.run(
-                                    'DELETE FROM Collection WHERE id = ? AND userRef = ?;',
-                                    [id, userId],
-                                        (err: Error | null) => {
+                                const deletePageBycCollRef = async (collId:number,userId:number) => await new Promise((res,rej)=>{
+                                    this.db.run(
+                                        'DELETE FROM Page WHERE collectionRef = ? AND userRef = ?;',
+                                        [collId, userId],
+                                        async (err: Error | null) => {
                                             if (err) {
-                                                console.log("ERROR DELETE COLLECTION SINGLE:", err , id , userId);
+                                                console.log("ERROR DELETE PAGE SINGLE:", err , collId , userId);
+                                                rej()
                                             }else{
-                                                console.log("DELETED COLLECTION SINGLE:", id , userId);
+                                                console.log("DELETED PAGE SINGLE:", collId , userId);
+                                                await new Promise((res,rej)=>{
+                                                    this.db.all(
+                                                        'SELECT * FROM Page WHERE collectionRef = ? AND userRef = ?;',
+                                                        [id, userId],
+                                                        async (err: Error | null, rows: { id: number }[]) => {
+                                                            if (err) {
+                                                                console.log("ERROR FETCHING NESTED PAGE:", err);
+                                                                return rej();
+                                                            } else {
+                                                                console.log("COLL : ", rows)
+                                                                res(1)
+                                                            }
+                                                        })
+                                                }).catch(rejectNested)
+                                                res(1)
                                             }
                                         }
                                     )
+                                }).catch(rejectNested)
 
-                                // After deleting all nested collections, resolve
+                                await deletePageBycCollRef(id,userId)
+
+                                await new Promise((res,rej)=>{
+                                    this.db.run(
+                                        'DELETE FROM Collection WHERE id = ? AND userRef = ?;',
+                                        [id, userId],
+                                        async (err: Error | null) => {
+                                            if (err) {
+                                                rejectNested()
+                                            }else{
+                                                console.log("DELETED COLLECTION SINGLE:", id , userId);
+                                            }
+                                            return res(1)
+                                        }
+                                    )
+                                }).catch(rejectNested)
+
                                 resolveNested();
                             }
                         );
@@ -199,26 +235,13 @@ class CollectionDatabase {
                                     console.log("ERROR DELETE PAGES:", err);
                                     this.db.run('ROLLBACK;', () => reject(err));
                                 } else {
-                                    // Delete the collection itself
+
                                     this.db.run(
                                         'DELETE FROM Collection WHERE id = ? AND userRef = ?;',
                                         [collectionId, userId],
                                         (err: Error | null) => {
                                             if (err) {
-                                                console.log("ERROR DELETE COLLECTION:", err);
-
-                                                this.db.all(
-                                                    'SELECT * FROM Collection WHERE parent = ? AND userRef = ?;',
-                                                    [collectionId, userId],
-                                                    async (err: Error | null, rows: Collection[]) => {
-                                                        if (err) {
-                                                            console.log("ERROR FETCHING FINAL", err);
-                                                        }else{
-                                                            console.log("FINAL",rows)
-                                                        }
-                                                    }
-                                                );
-
+                                                console.log("ERROR DELETE COLLECTION:", err , collectionId , userId);
 
                                                 this.db.run('ROLLBACK;', () => reject(err));
                                             } else {
