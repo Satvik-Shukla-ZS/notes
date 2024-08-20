@@ -7,6 +7,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Features from './pages/Features'
 import Content from './pages/Content';
+import Info from './pages/Info';
 
 const CustomRouter = () => {
   return (
@@ -18,9 +19,8 @@ const CustomRouter = () => {
         <Route path="/features" element={<Features />} />
         <Route path="/contact" element={<Contact />} />
         <Route path='/app' Component={Layout}>
-          <Route path='user' element={<>skajdsal</>} />
-          <Route path='/' Component={Layout}>
-          <Route path={"/page/:id"} element={<Content />} />
+          <Route path="/app" element={<Info />} />
+          <Route path={"/app/page/:id"} element={<Content />} />
         </Route>
       </Routes>
     </BrowserRouter>

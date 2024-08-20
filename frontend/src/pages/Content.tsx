@@ -36,7 +36,7 @@ const MarkdownEditor: React.FC = () => {
     return (
         <div className='w-[95%] mx-auto'>
             <div className='flex flex-row justify-between mb-2'>
-            <h1 className='text-2xl ml-2 mb-2 text-slate-300' >/ <b>{details?.name}</b></h1>
+            <h1 className='text-2xl ml-2 mb-2 text-slate-300' ><b>{details?.name}</b></h1>
                 <div className="flex flex-row gap-2">
                 <button
                     className={`p-1 w-24 text-sm border-2 rounded-xl ${!isReadOnly ? 'bg-green-300 border-green-300 hover:opacity-50 cursor-pointer' : 'hidden'}`}
@@ -58,7 +58,7 @@ const MarkdownEditor: React.FC = () => {
                 <button
                     className={`p-1 w-24 flex justify-center text-slate-950 hover:text-slate-100 border-red-100 items-center text-sm border-2 rounded-xl ${isReadOnly ? 'bg-red-300  hover:bg-red-500 cursor-pointer' : 'bg-gray-300 border-gray-300 cursor-not-allowed opacity-50'}`}
                     onClick={()=>{
-                        navigate('/')
+                        navigate('/app')
                     }}
                     >
                     <span className='flex flex-row justify-center  items-center'>
@@ -68,7 +68,7 @@ const MarkdownEditor: React.FC = () => {
                 </button>
                 </div>
             </div>
-            <hr className='border-2 border-slate-200 mb-4' />
+            <hr className='border-1 border-slate-200 mb-4' />
 
             <MDEditor
                 value={content}
