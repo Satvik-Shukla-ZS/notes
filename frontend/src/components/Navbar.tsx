@@ -50,9 +50,10 @@ const Navbar = () => {
               })
             }
           >
-            <img src={profile?.profile} className='rounded-full w-10 h-10 border-2' alt='pfp' />
-            <h1>{profile ? profile.name : ''}</h1>
-            <RiLogoutCircleLine className='text-2xl cursor-pointer ' onClick={handleLogout} />
+            <button className='flex items-center '>
+              <img src={profile?.profile} className='rounded-full w-10 h-10 mx-1 border-2' alt='pfp' />
+              <h5>{profile ? profile.name : ''}</h5>
+            </button>
           </div>
         </div>
       </nav>
