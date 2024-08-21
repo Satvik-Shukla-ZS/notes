@@ -197,7 +197,9 @@ const DirectoryMap: any = (dataa: ResultArr) => {
         .catch((error) => {
           console.error('Failed to delete item:', error)
         })
-      navigate('/app')
+        if(pageId === collectionId){
+            navigate('/app')
+        }
     }
   }
 
