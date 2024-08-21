@@ -32,7 +32,9 @@ const DirectoryMap: any = (dataa: ResultArr) => {
   const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
   const [rename, setRename] = useState<Record<number, boolean>>({})
   const [type, setType] = useState<string>('')
-  const [visibleChildren, setVisibleChildren] = useState<Set<number>>(localStorage.getItem('visibleChildren') ? new Set(JSON.parse(localStorage.getItem('visibleChildren') as string)) : new Set())
+  const [visibleChildren, setVisibleChildren] = useState<Set<number>>(
+    localStorage.getItem('visibleChildren') ? new Set(JSON.parse(localStorage.getItem('visibleChildren') as string)) : new Set()
+  )
   const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({})
   const input = useRef<Record<number, HTMLInputElement | null>>({})
   const renameRef = useRef<HTMLInputElement>(null)
@@ -442,7 +444,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
                     <a data-tooltip-id='my-tooltip' data-tooltip-content={item.name}>
                       <h3 className=' w-28 overflow-hidden'>{item.name}</h3>
                     </a>
-                    <Tooltip id='my-tooltip' />
+                    <Tooltip />
                   </div>
                   <div
                     className='menu'
