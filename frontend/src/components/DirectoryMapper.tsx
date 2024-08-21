@@ -503,20 +503,22 @@ const DirectoryMap: any = (dataa: ResultArr) => {
         }}
       /> */}
 
-      <MdDeleteOutline
-        className={`w-6 h-6 p-0.5 ${isSelect ? 'bg-red-500 rounded-md' : ''} `}
-        onClick={(e) => {
-          {
-            !isSelect &&
-              Toast.fire({
-                icon: 'info',
-                title: 'Select items to delete'
-              })
-          }
-          e.stopPropagation()
-          toggleSelect(setIsSelect)
-        }}
-      />
+      {data.length > 0 && (
+        <MdDeleteOutline
+          className={`w-6 h-6 p-0.5 ${isSelect ? 'bg-red-500 rounded-md' : ''} `}
+          onClick={(e) => {
+            {
+              !isSelect &&
+                Toast.fire({
+                  icon: 'info',
+                  title: 'Select items to delete'
+                })
+            }
+            e.stopPropagation()
+            toggleSelect(setIsSelect)
+          }}
+        />
+      )}
       {selected.length !== 0 && (
         <div className='flex flex-row ml-36 gap-2 mb-4 items-end justify-center '>
           <FaTrash className='bg-red-500 p-1 text-xl w-8 shadow-sm shadow-red-300 rounded-lg' onClick={() => handleGroupDelete()} />
