@@ -525,6 +525,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
           <FaXmark
             className='bg-red-500 w-8 text-xl shadow-sm shadow-red-300 rounded-lg'
             onClick={() => {
+              setIsSelect(false)
               setSelected([])
             }}
           />
