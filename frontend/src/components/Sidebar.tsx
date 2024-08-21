@@ -46,8 +46,8 @@ const Sidebar = () => {
           transition: 'all 0.5s'
         }}
       >
-        <div className='flex justify-between items-center'>
-          <input type='text' className='w-40  rounded-md px-2 py-1 border-slate-400 border-2' placeholder='Search Notes' />
+        <div className='flex justify-end items-center'>
+          {/* <input type='text' className='w-40  rounded-md px-2 py-1 border-slate-400 border-2' placeholder='Search Notes' /> */}
           {menu ? <ImMenu onClick={() => setMenu(false)} /> : <ImMenu onClick={() => setMenu(true)} />}
         </div>
         <div
