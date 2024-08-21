@@ -3,6 +3,7 @@ import {RES_USER_PROFILE} from "../utils/types/api/user";
 import USER_API from "../utils/api/user";
 import {useNavigate} from "react-router-dom";
 import {delete_cookie} from "../utils/helper/cookie";
+import Search from "./Search";
 
 const Navbar = () => {
     const [userData, setUserData] = useState<RES_USER_PROFILE>()
@@ -28,7 +29,7 @@ const Navbar = () => {
   return (
     <>
       <nav className='p-2 flex justify-between'>
-          <input placeholder={"Search"} className={`bg-white p-1 px-2 outline-0 rounded-md`} />
+          <Search />
           <div className={`flex gap-2 items-center`}>
               <img className={`max-w-[30px] aspect-square rounded-full border-gray-200 border-[1px] bg-white`} src={userData ? userData.profile : ""} alt={"user profile"} />
               <span>{userData && userData.name}</span>

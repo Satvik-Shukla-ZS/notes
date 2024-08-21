@@ -85,6 +85,16 @@ const MOVE = async (data: { id:number , parent:number | null }): Promise<Custom_
   }
 }
 
+const Get_All_By_Name = async (data: {name:string}): Promise<RES_ALL_COLLECTION_BY_PARENT_ID> => {
+  try {
+    return await axiosInstance()
+        .post('/auth/collection/getAllByName', data)
+        .then((res) => res.data)
+  } catch (error) {
+    throw new Error(`Error fetching the collection by parent id: ${error}`)
+  }
+}
+
 const COLLECTION_API = {
   ADD,
   Get_By_ID,
@@ -92,6 +102,7 @@ const COLLECTION_API = {
   Get_All_By_Parent_ID,
   RENAME,
   DELETE,
-  MOVE
+  MOVE,
+  Get_All_By_Name
 }
 export default COLLECTION_API
