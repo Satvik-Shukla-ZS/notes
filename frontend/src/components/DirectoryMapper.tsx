@@ -163,6 +163,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
       setData((prev) => prev.filter((single) => single.id !== ele))
     }
     setSelected([])
+    setIsSelect(false)
     Toast.fire({
       icon: 'success',
       title: 'Selected items deleted successfully'
@@ -199,9 +200,9 @@ const DirectoryMap: any = (dataa: ResultArr) => {
         .catch((error) => {
           console.error('Failed to delete item:', error)
         })
-        if(pageId === collectionId){
-            navigate('/app')
-        }
+      if (pageId === collectionId) {
+        navigate('/app')
+      }
     }
   }
 
@@ -265,9 +266,9 @@ const DirectoryMap: any = (dataa: ResultArr) => {
         return (
           <div
             key={item.id}
-            className='relative py-1 px-2 ml-1 my-1 bg-slate-100 rounded-md  hover:bg-slate-400'
+            className={`relative py-1 px-2 ml-1 my-1 bg-slate-100 rounded-md  hover:bg-slate-400 ${isChildrenVisible ? 'bg-slate-400' : ''} `}
             style={{
-              backgroundColor: selected.includes(item.id) || isChildrenVisible ? 'rgb(203 213 225)' : ''
+              backgroundColor: selected.includes(item.id) ? 'rgb(203 213 120)' : ''
             }}
           >
             {isRenameVisible ? (
@@ -490,33 +491,33 @@ const DirectoryMap: any = (dataa: ResultArr) => {
       }
       return null
     },
-    [visibleChildren, menuVisibility, rename, type, inputVisible, selected, data]
+    [visibleChildren, menuVisibility, rename, type, inputVisible, selected, data, isSelect]
   )
 
   return (
     <div className='relative p-1 h-[625px] hide-scroll'>
-      {isSelect && (
-        <div
-          className='select text-2xl ml-44 mb-4 flex flex-row items-end justify-center bg-green-500 w-8 shadow-sm shadow-green-300 rounded-lg'
-          onClick={() => toggleSelect(setIsSelect)}
-        >
-          <TiTick />
-        </div>
-      )}
       {/* <BiSolidSelectMultiple
         onClick={(e) => {
           e.stopPropagation()
           toggleSelect(setIsSelect)
         }}
       /> */}
+
       <MdDeleteOutline
-        className='w-5 h-5'
+        className={`w-6 h-6 p-0.5 ${isSelect ? 'bg-red-500 rounded-md' : ''} `}
         onClick={(e) => {
+          {
+            !isSelect &&
+              Toast.fire({
+                icon: 'info',
+                title: 'Select items to delete'
+              })
+          }
           e.stopPropagation()
           toggleSelect(setIsSelect)
         }}
       />
-      {selected.length !== 0 && !isSelect && (
+      {selected.length !== 0 && (
         <div className='flex flex-row ml-36 gap-2 mb-4 items-end justify-center '>
           <FaTrash className='bg-red-500 p-1 text-xl w-8 shadow-sm shadow-red-300 rounded-lg' onClick={() => handleGroupDelete()} />
           <FaXmark
