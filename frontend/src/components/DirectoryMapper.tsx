@@ -24,8 +24,8 @@ import {
 } from '../utils/helper/ToggleFunctions'
 import { Tooltip } from 'react-tooltip'
 
-const DirectoryMap: React.FC = () => {
-  const [data, setData] = useState<ResultArr>(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') as string) : [])
+const DirectoryMap: any = (dataa: ResultArr) => {
+  const [data, setData] = useState<ResultArr>(dataa)
   const [structuredData, setStructuredData] = useState<ResultArr>([])
   const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
   const [rename, setRename] = useState<Record<number, boolean>>({})

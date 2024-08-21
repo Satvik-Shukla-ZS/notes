@@ -1,19 +1,26 @@
-import React, { createContext, useRef, useState } from 'react'
+import React, { createContext, useEffect, useRef, useState } from 'react'
 import DirectoryMap from './DirectoryMapper'
 import { FaPlus } from 'react-icons/fa'
 import COLLECTION_API from '../utils/api/collection'
 import { ImMenu, ImCross } from 'react-icons/im'
 import { Toast } from '../utils/alert/sweetAlert2'
+import { ResultArr } from '../utils/helper/DirFormatter'
 
 const Sidebar = () => {
   const [takeinputColl, setinputColl] = useState(false)
   const [menu, setMenu] = useState(true)
   const inputContext = createContext(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [data, setData] = useState<ResultArr>(localStorage.getItem('data') ? JSON.parse(localStorage.getItem('data') as string) : [])
 
   const handleAddCollection = () => {
     setinputColl(true)
   }
+  useEffect(() => {
+    COLLECTION_API.Get_All_By_Parent_ID({ parent: null }).then((res) => {
+      setData(res.data)
+    })
+  }, [])
 
   const handleKeyDown = (parent: number | null) => (e: React.KeyboardEvent) => {
     if (inputRef.current && e.key === 'Enter' && inputRef.current.value === '') {
@@ -65,7 +72,7 @@ const Sidebar = () => {
                 className='p-2 rounded-md w-full bg-slate-300 focus-within:'
               />
             )}
-            <DirectoryMap />
+            <DirectoryMap data={data} />
           </inputContext.Provider>
         </div>
       </div>
