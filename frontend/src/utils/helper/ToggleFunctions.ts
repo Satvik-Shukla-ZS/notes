@@ -1,4 +1,4 @@
-export const toggleChildrenVisibility = (collectionId: number, setLoading: React.Dispatch<React.SetStateAction<Record<number, boolean>>>, isSelect : boolean, setSelected: React.Dispatch<React.SetStateAction<Array<number>>>, setVisibleChildren:React.Dispatch<React.SetStateAction<Set<number>>> ) => {
+export const toggleChildrenVisibility = (collectionId: number, isSelect : boolean, setSelected: React.Dispatch<React.SetStateAction<Array<number>>>, setVisibleChildren:React.Dispatch<React.SetStateAction<Set<number>>> ) => {
     if (isSelect) {
         setSelected(prev => {
             if (prev.includes(collectionId)) {
@@ -8,8 +8,6 @@ export const toggleChildrenVisibility = (collectionId: number, setLoading: React
             }
         })
     } else {
-        setLoading(prev => ({ ...prev, [collectionId]: true }))
-        setTimeout(() => {
             let prevData = JSON.parse(localStorage.getItem("data") || "[]")
             setVisibleChildren((prev) => {
                 const newVisibleChildren = new Set(prev)
@@ -35,8 +33,6 @@ export const toggleChildrenVisibility = (collectionId: number, setLoading: React
             });
             console.log(resData)
             localStorage.setItem("data", JSON.stringify(resData))
-            setLoading(prev => ({ ...prev, [collectionId]: false }))
-        }, 300)
     }
 }
 

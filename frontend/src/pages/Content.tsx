@@ -58,6 +58,7 @@ const MarkdownEditor: React.FC = () => {
                 <button
                     className={`p-1 w-24 flex justify-center text-slate-950 hover:text-slate-100 border-red-100 items-center text-sm border-2 rounded-xl ${isReadOnly ? 'bg-red-300  hover:bg-red-500 cursor-pointer' : 'bg-gray-300 border-gray-300 cursor-not-allowed opacity-50'}`}
                     onClick={()=>{
+                        localStorage.removeItem("visibleChildren")
                         navigate('/app')
                     }}
                     >
