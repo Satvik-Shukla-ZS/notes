@@ -5,6 +5,7 @@ import COLLECTION_API from '../utils/api/collection'
 import { ImMenu, ImCross } from 'react-icons/im'
 import { Toast } from '../utils/alert/sweetAlert2'
 import { ResultArr } from '../utils/helper/DirFormatter'
+import { IoIosClose } from 'react-icons/io'
 
 const Sidebar = () => {
   const [takeinputColl, setinputColl] = useState(false)
@@ -65,12 +66,15 @@ const Sidebar = () => {
             </div>
             <hr className='border-1 border-black mb-2' />
             {takeinputColl && (
-              <input
-                ref={inputRef}
-                onKeyDown={handleKeyDown(null)}
-                placeholder='Enter the name of Collection'
-                className='p-2 rounded-md w-full bg-slate-300 focus-within:'
-              />
+              <div className='flex flex-1 justify-end relative'>
+                <input
+                  ref={inputRef}
+                  onKeyDown={handleKeyDown(null)}
+                  placeholder='Enter the name of Collection'
+                  className='p-2 rounded-md w-full bg-slate-300 focus-within:'
+                />
+                <IoIosClose className='hover:bg-red-300 rounded-md absolute mt-.7 mr-1' onClick={() => setinputColl(false)} />
+              </div>
             )}
             <DirectoryMap data={data} />
           </inputContext.Provider>
