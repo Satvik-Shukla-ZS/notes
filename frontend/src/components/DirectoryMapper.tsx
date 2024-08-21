@@ -31,11 +31,10 @@ const DirectoryMap: any = (dataa: ResultArr) => {
   const [menuVisibility, setMenuVisibility] = useState<Record<number, boolean>>({})
   const [rename, setRename] = useState<Record<number, boolean>>({})
   const [type, setType] = useState<string>('')
-  const [visibleChildren, setVisibleChildren] = useState<Set<number>>(new Set())
+  const [visibleChildren, setVisibleChildren] = useState<Set<number>>(localStorage.getItem('visibleChildren') ? new Set(JSON.parse(localStorage.getItem('visibleChildren') as string)) : new Set())
   const [inputVisible, setInputVisible] = useState<Record<number, boolean>>({})
   const input = useRef<Record<number, HTMLInputElement | null>>({})
   const renameRef = useRef<HTMLInputElement>(null)
-  const [loading, setLoading] = useState<Record<number, boolean>>({})
   const [isSelect, setIsSelect] = useState<boolean>(false)
   const [selected, setSelected] = useState<Array<number>>(new Array())
   const navigate = useNavigate()
@@ -253,17 +252,10 @@ const DirectoryMap: any = (dataa: ResultArr) => {
   const renderItem = useCallback(
     (item: CollectionType | PageType) => {
       if (item.type === 'COLLECTION') {
-        const prevData = new Set<number>(JSON.parse(localStorage.getItem('data') as string)?.map((item: any) => item.id) || [])
-        let isChildrenVisible
-        if (pageId === -1) {
-          isChildrenVisible = visibleChildren.has(item.id)
-        } else {
-          isChildrenVisible = item.children?.some((child) => prevData.has(child.id)) ? true : false
-        }
+        const isChildrenVisible = visibleChildren.has(item.id) || false
         const isMenuVisible = menuVisibility[item.id] || false
         const isInputVisible = inputVisible[item.id] || false
         const isRenameVisible = rename[item.id] || false
-        const isLoading = loading[item.id] || false
 
         return (
           <div
@@ -302,7 +294,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
                 className='flex flex-row justify-between items-center truncate'
                 style={{ fontWeight: 'bold', cursor: 'pointer' }}
                 onClick={() => {
-                  toggleChildrenVisibility(item.id, setLoading, isSelect, setSelected, setVisibleChildren)
+                  toggleChildrenVisibility(item.id, isSelect, setSelected, setVisibleChildren)
                   localStorage.setItem('data', JSON.stringify(data))
                   {
                     isMenuVisible && toggleMenuVisibility(item.id, setMenuVisibility)
@@ -328,7 +320,6 @@ const DirectoryMap: any = (dataa: ResultArr) => {
                     toggleMenuVisibility(item.id, setMenuVisibility)
                   }}
                 >
-                  {isLoading && <span className='border-2 animate-spin border-x-slate-500 border-y-slate-400 rounded-full w-4 h-4'></span>}
                   {!isMenuVisible ? <ImMenu /> : <ImCross />}
                 </div>
                 {isMenuVisible && (
@@ -440,6 +431,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
                 to={'/app/page/' + item.id}
                 onClick={() => {
                   localStorage.setItem('data', JSON.stringify(data))
+                  localStorage.setItem('visibleChildren', JSON.stringify(Array.from(visibleChildren)))
                 }}
               >
                 <div className='flex flex-row justify-between px-2 py-1 cursor-pointer rounded-md items-center hover:bg-slate-400 mt-1'>
@@ -493,7 +485,7 @@ const DirectoryMap: any = (dataa: ResultArr) => {
       }
       return null
     },
-    [visibleChildren, menuVisibility, rename, type, inputVisible, loading, selected, data]
+    [visibleChildren, menuVisibility, rename, type, inputVisible, selected, data]
   )
 
   return (
