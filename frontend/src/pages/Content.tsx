@@ -34,7 +34,7 @@ const MarkdownEditor: React.FC = () => {
     }
 
     return (
-        <div className='w-[95%] mx-auto'>
+        <div className='w-[95%] mx-auto z-[-10]'>
             <div className='flex flex-row justify-between mb-2'>
             <h1 className='text-2xl ml-2 mb-2 text-slate-300' ><b>{details?.name}</b></h1>
                 <div className="flex flex-row gap-2">
