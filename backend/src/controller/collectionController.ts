@@ -145,6 +145,34 @@ class CollectionController {
 
         return res.json(responseHandler.SUCCESS(ans))
     }
+
+    async getAllByName (req: Request, res: Response , next: NextFunction){
+        const [isBodyValid, request] = reqBodyValidator(req,["name"])
+        if(!isBodyValid) return res.json(request)
+
+        const user = await headerAuthVerify(req)
+        if(!user)   return res.json(responseHandler.UNAUTHORISED("Not Authorised"))
+
+        const { name } = req.body
+
+        const userObj = await UserDatabase.findUser(user.email);
+        if(!userObj) return res.json(responseHandler.NOT_FOUND_ERR("User not found"))
+
+        const ans = []
+        const resultColl = await Database.CollectionDatabase.findCollectionByUserAndName(userObj.id, name).catch(()=>null)
+        if(resultColl) ans.push(...resultColl.map((single)=>({
+            ...single,
+            type : "COLLECTION"
+        })))
+
+        const resultPage = await PageDatabase.findByName(name,userObj.id).catch(()=>null)
+        if(resultPage) ans.push(...resultPage.map((single)=>({
+            ...single,
+            type : "PAGE"
+        })))
+
+        return res.json(responseHandler.SUCCESS(ans))
+    }
 }
 
 export default new CollectionController();

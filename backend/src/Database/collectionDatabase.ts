@@ -336,6 +336,23 @@ class CollectionDatabase {
             });
         });
     }
+
+    static async findCollectionByUserAndName(userId : number,name:string): Promise<Collection[] | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<Collection[] | null>((resolve, reject) => {
+            let query = 'SELECT * FROM Collection WHERE userRef = ? AND isDeleted = 0 AND name LIKE ?';
+            let params = [userId,`%${name}%`];
+
+            this.db.all(query, params, (err: Error | null, row: Collection[] | undefined) => {
+                if (err) {
+                    reject(null);
+                } else {
+                    resolve(row || null);
+                }
+            });
+        });
+    }
 }
 
 export default CollectionDatabase;

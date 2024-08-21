@@ -220,6 +220,24 @@ class PageDatabase {
             });
         });
     }
+
+    static async findByName(name : string , userId : number): Promise<Page[] | null> {
+        if (!this.db) throw new Error('Database not initialized');
+
+        return new Promise<Page[] | null>((resolve, reject) => {
+            this.db.all(
+                'SELECT * FROM Page WHERE name LIKE ? AND userRef = ?',
+                [`%${name}%`, userId],
+                (err: Error | null, row: Page[] | undefined) => {
+                    if (err) {
+                        reject(null);
+                    } else {
+                        resolve(row || null);
+                    }
+                }
+            );
+        });
+    }
 }
 
 export default PageDatabase;

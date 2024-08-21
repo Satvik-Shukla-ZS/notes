@@ -9,5 +9,6 @@ router.delete('/delete', collectionController.deleteById);
 router.post('/rename', collectionController.rename);
 router.post('/getByParentId', collectionController.getByParent);
 router.post('/getAllByParentId', collectionController.getAllByParent);
+router.post('/getAllByName', collectionController.getAllByName);
 
 export default router;
