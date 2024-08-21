@@ -12,6 +12,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 import COLLECTION_API from '../utils/api/collection'
 import PAGE_API from '../utils/api/page'
 import { Toast } from '../utils/alert/sweetAlert2'
+import { MdDeleteOutline } from 'react-icons/md'
 import { Link, useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { BiSolidSelectMultiple } from 'react-icons/bi'
@@ -498,7 +499,14 @@ const DirectoryMap: any = (dataa: ResultArr) => {
           <TiTick />
         </div>
       )}
-      <BiSolidSelectMultiple
+      {/* <BiSolidSelectMultiple
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleSelect(setIsSelect)
+        }}
+      /> */}
+      <MdDeleteOutline
+        className='w-5 h-5'
         onClick={(e) => {
           e.stopPropagation()
           toggleSelect(setIsSelect)
