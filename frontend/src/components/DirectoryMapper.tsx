@@ -15,6 +15,7 @@ import { Toast } from '../utils/alert/sweetAlert2'
 import { Link, useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 import { BiSolidSelectMultiple } from 'react-icons/bi'
+import { IoIosClose } from 'react-icons/io'
 import {
   toggleSelect,
   toggleMenuVisibility,
@@ -273,15 +274,29 @@ const DirectoryMap: any = (dataa: ResultArr) => {
             }}
           >
             {isRenameVisible ? (
-              <input
-                type='text'
-                ref={renameRef}
-                className='w-full rounded-md border-none'
-                placeholder='Enter text to rename'
-                onKeyDown={(e) => {
-                  handleRename(e, item.id, item.type)
-                }}
-              />
+              <>
+                <div className='flex flex-1 justify-end relative'>
+                  <input
+                    type='text'
+                    ref={renameRef}
+                    className='border-2 border-black p-1 rounded-lg w-full my-1 '
+                    placeholder='Enter text to rename'
+                    onKeyDown={(e) => {
+                      handleRename(e, item.id, item.type)
+                    }}
+                  />
+                  <IoIosClose
+                    className='hover:bg-red-300 rounded-md absolute mt-1 font-extrabold  mr-1 z-10'
+                    onClick={() => {
+                      setRename({
+                        ...rename,
+                        [item.id]: false
+                      })
+                      toggleMenuVisibility(item.id, setMenuVisibility)
+                    }}
+                  />
+                </div>
+              </>
             ) : (
               <div
                 className='flex flex-row justify-between items-center truncate'
@@ -300,7 +315,11 @@ const DirectoryMap: any = (dataa: ResultArr) => {
               >
                 <div className='flex gap-2 items-center'>
                   {isChildrenVisible ? <FaFolderOpen /> : <FaFolder />}
-                  {item.name}
+                  <a data-tooltip-id='my-tooltip' data-tooltip-content={item.name}>
+                    <h3 className=' w-28 overflow-hidden'>{item.name}</h3>
+                  </a>
+                  <Tooltip id='my-tooltip' data-tooltip-place='top' />
+                  {/* {item.name} */}
                 </div>
                 <div
                   className='menu flex flex-row items-center justify-center gap-4'
@@ -342,6 +361,9 @@ const DirectoryMap: any = (dataa: ResultArr) => {
                       className='menu-item w-28 hover:bg-sky-200 p-2 rounded-xl hover:text-sky-500'
                       onClick={(e) => {
                         e.stopPropagation()
+                        if (isInputVisible) {
+                          toggleInputVisibility(item.id, item.type, setMenuVisibility, setInputVisible, setType)
+                        }
                         toggleRenameVisibility(item.id, setRename)
                       }}
                     >
@@ -363,15 +385,26 @@ const DirectoryMap: any = (dataa: ResultArr) => {
             )}
             {isChildrenVisible && item.children && item.children.map(renderItem)}
             {isInputVisible && (
-              <input
-                type='text'
-                ref={(el) => {
-                  if (el) input.current[item.id] = el
-                }}
-                onKeyDown={handleKeyDown(item.id)}
-                className='border-2 border-black p-2 rounded-lg w-full mt-2'
-                placeholder='Enter the name'
-              />
+              <div className='flex flex-1 justify-end relative'>
+                <input
+                  type='text'
+                  ref={(el) => {
+                    if (el) input.current[item.id] = el
+                  }}
+                  onKeyDown={handleKeyDown(item.id)}
+                  className='border-2 border-black p-1 rounded-lg w-full my-1  '
+                  placeholder='Enter the name'
+                />
+                <IoIosClose
+                  className='hover:bg-red-300 rounded-md absolute mt-2 mr-1'
+                  onClick={() =>
+                    setInputVisible({
+                      ...inputVisible,
+                      [item.id]: false
+                    })
+                  }
+                />
+              </div>
             )}
           </div>
         )
@@ -381,15 +414,27 @@ const DirectoryMap: any = (dataa: ResultArr) => {
         return (
           <>
             {isRenameVisible ? (
-              <input
-                type='text'
-                ref={renameRef}
-                className='border-2 border-black p-2 rounded-lg w-full mt-2'
-                placeholder='Rename Page'
-                onKeyDown={(e) => {
-                  handleRename(e, item.id, item.type)
-                }}
-              />
+              <div className='flex flex-1 justify-end relative'>
+                <input
+                  type='text'
+                  ref={renameRef}
+                  className='border-2 border-black p-1 rounded-lg w-full my-1 '
+                  placeholder='Rename Page'
+                  onKeyDown={(e) => {
+                    handleRename(e, item.id, item.type)
+                  }}
+                />
+                <IoIosClose
+                  className='hover:bg-red-300 rounded-md absolute mt-2 mr-1 z-10'
+                  onClick={() => {
+                    setRename({
+                      ...rename,
+                      [item.id]: false
+                    })
+                    toggleMenuVisibility(item.id, setMenuVisibility)
+                  }}
+                />
+              </div>
             ) : (
               <Link
                 to={'/app/page/' + item.id}
